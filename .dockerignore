@@ -1,0 +1,58 @@
+# Backend build artifacts
+backend/target/
+backend/.mvn/wrapper/maven-wrapper.jar
+
+# Frontend build artifacts and dependencies
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+
+# IDE files
+.vscode/
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+
+# Documentation
+*.md
+README.md
+DEPLOYMENT_CHECKLIST.md
+COMPLETE_BACKEND_HOSTING_GUIDE.md
+RENDER_DEPLOYMENT_GUIDE_BEGINNER.md
+RENDER_QUICK_CHECKLIST.md
+PROJECT_REORGANIZATION.md
+replit.md
+
+# Log files
+*.log
+hs_err_*.log
+
+# Environment files (keep local env files out of Docker image)
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Temporary files
+tmp/
+temp/
+
+# Test coverage
+coverage/
+
+# Docker files themselves
+Dockerfile
+.dockerignore
+
+# Other config files not needed in production
+vercel.json
+attached_assets/
