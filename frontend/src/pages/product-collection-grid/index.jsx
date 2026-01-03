@@ -422,6 +422,18 @@ const ProductCollectionGrid = () => {
   ];
 
   const categoryTitle = searchParams?.get('category')?.replace(/-/g, ' ')?.replace(/\b\w/g, l => l?.toUpperCase()) || 'All Products';
+  // Detect if woodpressed oils category is selected
+  const isWoodPressedOils = (() => {
+    const param = (searchParams?.get('category') || '').toLowerCase().replace(/\s+/g, '-');
+    return [
+      'wood-pressed-oils',
+      'woodpressed-oils',
+      'wood pressed oils',
+      'wood-pressed-oil',
+      'woodpressedoil',
+      'wood pressed oil'
+    ].some(v => param === v.replace(/\s+/g, '-')) || (param.includes('wood') && param.includes('oil'));
+  })();
 
   return (
     <div className="min-h-screen bg-background">
@@ -442,6 +454,27 @@ const ProductCollectionGrid = () => {
             Discover our collection of natural, handmade products crafted with love and tradition.
           </p>
         </div>
+        {/* Show parampara.jpg for All Products, Top-sticker.png for woodpressed oils */}
+        {(!searchParams.get('category') || categoryTitle === 'All Products') && (
+          <div className="mb-8">
+            <img
+              src="/assets/images/parampara.jpg"
+              alt="Parampara Sticker"
+              className="w-full h-auto object-cover rounded"
+              style={{ maxWidth: '100%', display: 'block' }}
+            />
+          </div>
+        )}
+        {isWoodPressedOils && (
+          <div className="mb-8">
+            <img
+              src="/assets/images/esential%20oils/Top-sticker.png"
+              alt="Top Sticker"
+              className="w-full h-auto object-cover rounded"
+              style={{ maxWidth: '100%', display: 'block' }}
+            />
+          </div>
+        )}
 
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Desktop Sidebar */}

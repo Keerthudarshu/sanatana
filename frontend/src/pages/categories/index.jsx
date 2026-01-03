@@ -68,9 +68,21 @@ const CategoriesPage = () => {
         };
       }));
 
-      // Filter out null categories and sort by product count
+      // Debug: log all category slugs before filtering
+      console.log('All category slugs from backend:', enrichedCategories.map(cat => cat && cat.slug));
+
+      // Only allow specific categories to be shown
+      const allowedSlugs = [
+        'wood-pressed-oils',
+        'spice-powders',
+        'pickles',
+        'ghee-honey',
+        'papads',
+        'jaggery',
+        'jaggery-sweeteners'
+      ];
       const validCategories = enrichedCategories
-        .filter(cat => cat !== null)
+        .filter(cat => cat !== null && allowedSlugs.includes(cat.slug))
         .sort((a, b) => b.productCount - a.productCount);
 
       setCategories(validCategories);
@@ -94,12 +106,12 @@ const CategoriesPage = () => {
     // Fallback images per category (external CDN/Unsplash) to ensure visuals
     const key = (categoryName || '').toLowerCase().replace(/\s+/g, '-');
     const fallbackImages = {
-      'wood-pressed-oils': 'https://images.unsplash.com/photo-1544025162-d76694265947?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=2e8d0f8f6c7c5f3f4d6b6b1a3f7a2a1f',
-      'spice-powders': 'https://images.unsplash.com/photo-1604908177522-9a3f9e1d1b17?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=3b2d3a9b8b7c6d5e4f3a2b1c0d9e8f7a',
-      'pickles': 'https://images.unsplash.com/photo-1604908812097-9fb3f3c3f2a6?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=4c3b2a1d0e9f8a7b6c5d4e3f2a1b0c9d',
-      'ghee-honey': 'https://images.unsplash.com/photo-1582289831815-7f0d4f3e1a2b?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b0a',
-      'jaggery': 'https://images.unsplash.com/photo-1611251783520-0f1c2b3a4d5e?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c1b',
-      'papads': 'https://images.unsplash.com/photo-1597301013686-7f5b9c4e3a2d?q=80&w=1400&auto=format&fit=crop&ixlib=rb-4.0.3&s=7f6e5d4c3b2a1f0e9d8c7b6a5f4e3d2c'
+      'wood-pressed-oils': 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&h=350&fit=crop&auto=format&q=85',
+      'spice-powders': 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&h=350&fit=crop&auto=format&q=85',
+      'pickles': 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=500&h=350&fit=crop&auto=format&q=85',
+      'ghee-honey': '/assets/banner/gee3.avif',
+      'jaggery': '/assets/banner/Jaggery_Sweeteners.jpg',
+      'papads': 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&h=350&fit=crop&auto=format&q=85'
     };
 
     if (fallbackImages[key]) return fallbackImages[key];

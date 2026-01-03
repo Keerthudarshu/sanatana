@@ -36,12 +36,12 @@ const ProductImageGallery = ({ images, productName }) => {
   return (
     <div className="space-y-4">
       {/* Main Image */}
-      <div className="relative aspect-square bg-muted rounded-lg overflow-hidden">
+      <div className="relative bg-muted rounded-lg overflow-hidden flex items-center justify-center" style={{ aspectRatio: '4/5', maxWidth: 350, maxHeight: 420, margin: '0 auto' }}>
         <Image
           src={images?.[selectedImageIndex]}
           alt={`${productName} - Image ${selectedImageIndex + 1}`}
-          className={`w-full h-full object-cover transition-transform duration-300 cursor-zoom-in ${
-            isZoomed ? 'scale-150' : 'scale-100'
+          className={`max-h-full max-w-full object-contain transition-transform duration-300 cursor-zoom-in ${
+            isZoomed ? 'scale-125' : 'scale-100'
           }`}
           onClick={() => setIsZoomed(!isZoomed)}
         />

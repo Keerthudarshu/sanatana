@@ -4,7 +4,9 @@ import Header from '../../components/ui/Header';
 import HeroSection from './components/HeroSection';
 import BannerShowcase from './components/BannerShowcase';
 import FeaturedProductsSection from './components/FeaturedProductsSection';
+
 import ShopByCategorySection from './components/ShopByCategorySection';
+import EssentialOilsSection from './components/EssentialOilsSection';
 
 
 import NewsletterSection from './components/NewsletterSection';
@@ -104,8 +106,12 @@ const Homepage = () => {
           {/* Featured Products - Best selling items with quick purchase */}
           <FeaturedProductsSection onAddToCart={handleAddToCart} />
 
+
           {/* Shop by Category - Browse all product categories */}
           <ShopByCategorySection />
+
+          {/* Essential Oils Section - Pure traditional oils */}
+          <EssentialOilsSection />
 
           {/* Newsletter Section */}
           <NewsletterSection />

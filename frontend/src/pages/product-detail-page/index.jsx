@@ -384,6 +384,7 @@ const ProductDetailPage = () => {
               images={product?.images}
               productName={product?.name}
             />
+            {/* ...removed duplicate Oil Essentials sticker... */}
           </div>
           
           {/* Product Information */}

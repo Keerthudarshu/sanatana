@@ -44,6 +44,11 @@ public class ProductService {
 
     // --- RESTORED PRODUCT CRUD METHODS (NO STOCK LOGIC) ---
     public Product save(Product p) {
+        if (p.getVariants() != null) {
+            for (ProductVariant variant : p.getVariants()) {
+                variant.setProduct(p);
+            }
+        }
         return productRepository.save(p);
     }
 

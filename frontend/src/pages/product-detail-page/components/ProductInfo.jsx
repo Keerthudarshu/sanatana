@@ -284,6 +284,30 @@ const ProductInfo = ({ product, onAddToCart, onAddToWishlist, isInWishlist }) =>
           </span>
         )}
       </div>
+      {/* Oil Essentials sticker for Wood Pressed Oils and Essential Oils */}
+      {(function() {
+        const cat = (product?.category || '').toString().toLowerCase().trim();
+        const subcat = (product?.subcategory || '').toString().toLowerCase().trim();
+        const ids = ["1", "2"];
+        const names = ["wood pressed oils", "essential oils"];
+        if (
+          ids.includes((product?.categoryId || product?.category || '').toString()) ||
+          ids.includes((product?.subcategoryId || product?.subcategory || '').toString()) ||
+          names.some(n => cat === n || subcat === n)
+        ) {
+          return (
+            <div className="w-full mt-8 mb-4">
+              <img
+                src="/assets/images/esential%20oils/oilessentials.jpeg"
+                alt="Oils Essentials Sticker"
+                className="w-full h-auto object-cover rounded"
+                style={{ display: 'block' }}
+              />
+            </div>
+          );
+        }
+        return null;
+      })()}
     </div>
   );
 };

@@ -113,14 +113,11 @@ const AboutPage = () => {
                 <div className="relative">
                   <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
                     <img
-                      src="https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=600&h=400&fit=crop"
+                      src="/assets/store.jpg"
                       alt="Traditional Indian Spices"
                       className="w-full h-80 object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
-                    <div className="absolute bottom-6 left-6 text-white">
-                      <h3 className="font-heading font-bold text-xl mb-2">Traditional Heritage</h3>
-                      <p className="font-body text-white/90">Authentic flavors, pure ingredients</p>
+                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent">
                     </div>
                   </div>
                 </div>

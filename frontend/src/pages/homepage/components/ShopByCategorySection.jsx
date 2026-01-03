@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Icon from '../../../components/AppIcon';
+import Popup from '../../../components/ui/Popup';
 
 const ShopByCategorySection = () => {
+  const [popup, setPopup] = useState({ open: false, message: '', type: 'success' });
+
   const categories = [
     {
       id: 'wood-pressed-oils',
@@ -41,7 +44,7 @@ const ShopByCategorySection = () => {
       id: 'ghee-honey',
       name: 'Ghee & Honey',
       productCount: 12,
-      image: 'https://images.unsplash.com/photo-1587225168002-1841544a4eec?w=500&h=350&fit=crop&auto=format&q=85',
+        image: '/assets/banner/gee3.avif',
       icon: 'Heart',
       description: 'Pure A2 ghee & wild honey',
       featured: ['Pure Ghee', 'Wild Honey', 'A2 Cow Ghee'],
@@ -52,7 +55,7 @@ const ShopByCategorySection = () => {
       id: 'jaggery-sweeteners',
       name: 'Jaggery & Sweeteners',
       productCount: 8,
-      image: 'https://images.unsplash.com/photo-1582044131936-1a896567b2b7?w=500&h=350&fit=crop&auto=format&q=85',
+      image: '/assets/banner/Jaggery_Sweeteners.jpg',
       icon: 'Candy',
       description: 'Chemical-free natural sweeteners',
       featured: ['Powder Jaggery', 'Solid Jaggery', 'Palm Jaggery'],
@@ -72,9 +75,24 @@ const ShopByCategorySection = () => {
     }
   ];
 
+  // Handler for adding to cart/wishlist (example)
+  const handleAddToCart = (categoryName) => {
+    setPopup({ open: true, message: `${categoryName} added to cart!`, type: 'success' });
+  };
+  const handleAddToWishlist = (categoryName) => {
+    setPopup({ open: true, message: `${categoryName} added to wishlist!`, type: 'success' });
+  };
+
   return (
     <section className="py-16 bg-white">
       <div className="container mx-auto px-4">
+        {/* Popup Notification */}
+        <Popup
+          open={popup.open}
+          message={popup.message}
+          type={popup.type}
+          onClose={() => setPopup({ ...popup, open: false })}
+        />
         {/* Section Header */}
         <div className="text-center mb-12">
           <h2 className="font-heading text-4xl font-bold text-primary mb-4">
@@ -177,12 +195,29 @@ const ShopByCategorySection = () => {
                     <Icon name="ArrowRight" size={16} className="group-hover:translate-x-1 transition-transform duration-300" />
                   </div>
                 </div>
+
+                {/* Demo Buttons for Add to Cart/Wishlist */}
+                <div className="flex gap-2 mt-4">
+                  <button
+                    className="px-3 py-1 bg-primary text-white rounded hover:bg-primary/80"
+                    onClick={(e) => { e.preventDefault(); handleAddToCart(category.name); }}
+                  >
+                    Add to Cart
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-accent text-white rounded hover:bg-accent/80"
+                    onClick={(e) => { e.preventDefault(); handleAddToWishlist(category.name); }}
+                  >
+                    Add to Wishlist
+                  </button>
+                </div>
               </div>
             </Link>
           ))}
         </div>
       </div>
     </section>
+
   );
 };
 

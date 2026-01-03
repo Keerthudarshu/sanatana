@@ -13,14 +13,36 @@ public class OrderItem {
     private Order order;
 
 
+
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "product_id")
+    @JoinColumn(name = "product_id", nullable = true)
     private Product product;
 
-    // New: reference to ProductVariant
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "variant_id")
+    @JoinColumn(name = "variant_id", nullable = true)
     private com.eduprajna.entity.ProductVariant variant;
+
+    // --- Snapshot fields for product/variant details at order time ---
+    @Column(name = "product_name")
+    private String productName;
+
+    @Column(name = "product_image_url")
+    private String productImageUrl;
+
+    @Column(name = "variant_name")
+    private String variantName;
+
+    @Column(name = "variant_price")
+    private Double variantPrice;
+
+    @Column(name = "variant_original_price")
+    private Double variantOriginalPrice;
+
+    @Column(name = "variant_weight_value")
+    private Double variantWeightValue;
+
+    @Column(name = "variant_weight_unit", length = 50)
+    private String variantWeightUnit;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -44,6 +66,27 @@ public class OrderItem {
 
     public com.eduprajna.entity.ProductVariant getVariant() { return variant; }
     public void setVariant(com.eduprajna.entity.ProductVariant variant) { this.variant = variant; }
+
+    public String getProductName() { return productName; }
+    public void setProductName(String productName) { this.productName = productName; }
+
+    public String getProductImageUrl() { return productImageUrl; }
+    public void setProductImageUrl(String productImageUrl) { this.productImageUrl = productImageUrl; }
+
+    public String getVariantName() { return variantName; }
+    public void setVariantName(String variantName) { this.variantName = variantName; }
+
+    public Double getVariantPrice() { return variantPrice; }
+    public void setVariantPrice(Double variantPrice) { this.variantPrice = variantPrice; }
+
+    public Double getVariantOriginalPrice() { return variantOriginalPrice; }
+    public void setVariantOriginalPrice(Double variantOriginalPrice) { this.variantOriginalPrice = variantOriginalPrice; }
+
+    public Double getVariantWeightValue() { return variantWeightValue; }
+    public void setVariantWeightValue(Double variantWeightValue) { this.variantWeightValue = variantWeightValue; }
+
+    public String getVariantWeightUnit() { return variantWeightUnit; }
+    public void setVariantWeightUnit(String variantWeightUnit) { this.variantWeightUnit = variantWeightUnit; }
     public Integer getQuantity() { return quantity; }
     public void setQuantity(Integer quantity) { this.quantity = quantity; }
     public Double getPrice() { return price; }

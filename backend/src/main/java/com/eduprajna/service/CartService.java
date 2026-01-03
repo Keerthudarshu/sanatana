@@ -138,7 +138,12 @@ public class CartService {
 
     public void removeItem(User user, Long productId) {
         Product product = productRepo.findById(productId).orElseThrow();
-        cartRepo.findByUserAndProduct(user, product).ifPresent(ci -> cartRepo.deleteById(ci.getId()));
+        List<CartItem> items = cartRepo.findByUser(user);
+        for (CartItem item : items) {
+            if (item.getProduct().getId().equals(productId)) {
+                cartRepo.delete(item);
+            }
+        }
     }
 
     public void clearCart(User user) {

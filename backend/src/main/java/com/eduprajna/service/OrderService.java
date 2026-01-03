@@ -113,9 +113,15 @@ public class OrderService {
         List<OrderItem> orderItems = cart.stream().map(cartItem -> {
             OrderItem orderItem = new OrderItem();
             orderItem.setOrder(order);
-            orderItem.setProduct(cartItem.getProduct());
+            Product product = cartItem.getProduct();
+            orderItem.setProduct(product);
             orderItem.setQuantity(cartItem.getQuantity());
             orderItem.setPrice(cartItem.getPriceAtAdd());
+            // Snapshot product details
+            if (product != null) {
+                orderItem.setProductName(product.getName());
+                orderItem.setProductImageUrl(product.getImageUrl());
+            }
             // Use array as mutable holder for lambda
             final String[] weightValueHolder = {null};
             final String[] weightUnitHolder = {null};
@@ -123,6 +129,14 @@ public class OrderService {
             if (cartItem.getVariantId() != null) {
                 variant = productVariantRepo.findById(cartItem.getVariantId()).orElse(null);
                 orderItem.setVariant(variant); // Set the variant reference
+                // Snapshot variant details
+                if (variant != null) {
+                    orderItem.setVariantName(null); // Add if you have a name field
+                    orderItem.setVariantPrice(variant.getPrice());
+                    orderItem.setVariantOriginalPrice(variant.getOriginalPrice());
+                    orderItem.setVariantWeightValue(variant.getWeightValue());
+                    orderItem.setVariantWeightUnit(variant.getWeightUnit());
+                }
             }
             if (cartItem.getWeightValue() != null) {
                 weightValueHolder[0] = cartItem.getWeightValue().toString();

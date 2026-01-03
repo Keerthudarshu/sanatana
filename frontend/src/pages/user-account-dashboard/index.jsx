@@ -16,6 +16,7 @@ import AddressBook from './components/AddressBook';
 import { resolveImageUrl } from '../../lib/resolveImageUrl';
 import WishlistSection from './components/WishlistSection';
 import PreferencesSection from './components/PreferencesSection';
+import Popup from '../../components/ui/Popup';
 
 const UserAccountDashboard = () => {
   const location = useLocation();
@@ -251,11 +252,7 @@ const UserAccountDashboard = () => {
       console.log('Successfully removed from wishlist');
       
       // Show success notification
-      const notification = document.createElement('div');
-      notification.className = 'fixed top-4 right-4 z-50 p-4 rounded-lg shadow-lg max-w-sm bg-green-500 text-white';
-      notification.innerHTML = '<div class="flex items-center gap-2"><span>Removed from wishlist!</span></div>';
-      document.body.appendChild(notification);
-      setTimeout(() => notification.remove(), 3000);
+      setShowWishlistPopup(true);
     } catch (error) {
       console.error('Error removing from wishlist:', error);
       
@@ -444,6 +441,8 @@ const UserAccountDashboard = () => {
     }
   };
 
+  const [showWishlistPopup, setShowWishlistPopup] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
       <Header 
@@ -494,6 +493,15 @@ const UserAccountDashboard = () => {
           </div>
         </div>
       </div>
+
+      {showWishlistPopup && (
+        <Popup
+          open={showWishlistPopup}
+          message="Removed from wishlist!"
+          type="success"
+          onClose={() => setShowWishlistPopup(false)}
+        />
+      )}
     </div>
   );
 };

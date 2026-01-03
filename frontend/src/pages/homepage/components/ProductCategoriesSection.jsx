@@ -10,7 +10,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Traditional Cold Pressed',
       description: 'Pure oils extracted using traditional wood pressing methods',
       icon: 'Droplets',
-      image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=400&h=300&fit=crop',
+      image: 'https://images.unsplash.com/photo-1474979266404-7eaacbcd87c5?w=500&h=350&fit=crop&auto=format&q=85',
       products: ['Coconut Oil', 'Sesame Oil', 'Groundnut Oil', 'Safflower Oil'],
       color: 'bg-gradient-to-br from-yellow-100 to-orange-100',
       textColor: 'text-orange-800'
@@ -21,7 +21,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Authentic Masalas',
       description: 'Hand-ground spices following traditional recipes',
       icon: 'Sparkles',
-      image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=400&h=300&fit=crop',
+      image: 'https://images.unsplash.com/photo-1596040033229-a9821ebd058d?w=500&h=350&fit=crop&auto=format&q=85',
       products: ['Sambar Powder', 'Rasam Powder', 'Garam Masala', 'Turmeric'],
       color: 'bg-gradient-to-br from-red-100 to-orange-100',
       textColor: 'text-red-800'
@@ -32,7 +32,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Traditional Recipes',
       description: 'Homemade pickles and chutneys with authentic flavors',
       icon: 'Jar',
-      image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=400&h=300&fit=crop',
+      image: 'https://images.unsplash.com/photo-1599599810769-bcde5a160d32?w=500&h=350&fit=crop&auto=format&q=85',
       products: ['Mango Pickle', 'Lemon Pickle', 'Mixed Vegetables', 'Green Chilli'],
       color: 'bg-gradient-to-br from-green-100 to-lime-100',
       textColor: 'text-green-800'
@@ -43,7 +43,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Pure & Natural',
       description: 'Traditional ghee and unprocessed wild honey',
       icon: 'Heart',
-      image: 'https://images.unsplash.com/photo-1587225168002-1841544a4eec?w=400&h=300&fit=crop',
+        image: '/assets/banner/gee3.avif',
       products: ['Pure Ghee', 'Wild Honey', 'Farm Honey', 'A2 Ghee'],
       color: 'bg-gradient-to-br from-amber-100 to-yellow-100',
       textColor: 'text-amber-800'
@@ -54,7 +54,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Chemical Free',
       description: 'Natural sweeteners made using traditional methods',
       icon: 'Candy',
-      image: 'https://images.unsplash.com/photo-1582044131936-1a896567b2b7?w=400&h=300&fit=crop',
+      image: '/assets/banner/Jaggery_Sweeteners.jpg',
       products: ['Powder Jaggery', 'Ginger Jaggery', 'Solid Jaggery', 'Palm Jaggery'],
       color: 'bg-gradient-to-br from-brown-100 to-orange-100',
       textColor: 'text-brown-800'
@@ -65,7 +65,7 @@ const ProductCategoriesSection = () => {
       subtitle: 'Handmade Delights',
       description: 'Traditional papads and authentic food products',
       icon: 'Cookie',
-      image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=400&h=300&fit=crop',
+      image: 'https://images.unsplash.com/photo-1606491956689-2ea866880c84?w=500&h=350&fit=crop&auto=format&q=85',
       products: ['Rice Papad', 'Urad Papad', 'Palak Papad', 'Traditional Sweets'],
       color: 'bg-gradient-to-br from-purple-100 to-pink-100',
       textColor: 'text-purple-800'
