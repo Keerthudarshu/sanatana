@@ -23,6 +23,31 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/orders")
 @CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class OrdersController {
+        @org.springframework.beans.factory.annotation.Autowired
+        private com.eduprajna.repository.OrderStatusHistoryRepository orderStatusHistoryRepo;
+
+        /**
+         * Get order status history for a specific order
+         * @param orderId ID of the order
+         * @return List of status changes (history)
+         */
+        @GetMapping("/{orderId}/status-history")
+        public ResponseEntity<?> getOrderStatusHistory(@PathVariable Long orderId) {
+            try {
+                if (orderId == null || orderId <= 0) {
+                    return ResponseEntity.badRequest().body(Map.of("error", "Invalid order ID"));
+                }
+                var historyList = orderStatusHistoryRepo.findByOrderIdOrderByChangedAtAsc(orderId);
+                var dtoList = historyList.stream()
+                    .map(h -> new com.eduprajna.dto.OrderStatusHistoryDTO(h.getStatus(), h.getChangedAt()))
+                    .collect(java.util.stream.Collectors.toList());
+                return ResponseEntity.ok(dtoList);
+            } catch (Exception e) {
+                logger.error("Error fetching status history for order: {}", orderId, e);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Internal server error"));
+            }
+        }
     private static final Logger logger = LoggerFactory.getLogger(OrdersController.class);
     
     private final OrderService orderService;

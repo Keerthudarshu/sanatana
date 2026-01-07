@@ -17,24 +17,27 @@ import java.util.stream.Collectors;
 @Service
 public class OrderService {
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
-    
+
     private final OrderRepository orderRepo;
     private final CartItemRepository cartRepo;
     private final CheckoutSelectionRepository selectionRepo;
     private final AddressRepository addressRepo;
     private final com.eduprajna.repository.ProductRepository productRepo;
     private final com.eduprajna.repository.ProductVariantRepository productVariantRepo;
+    private final OrderStatusHistoryRepository orderStatusHistoryRepo;
 
-    public OrderService(OrderRepository orderRepo, CartItemRepository cartRepo, 
+    public OrderService(OrderRepository orderRepo, CartItemRepository cartRepo,
                        CheckoutSelectionRepository selectionRepo, AddressRepository addressRepo,
                        com.eduprajna.repository.ProductRepository productRepo,
-                       com.eduprajna.repository.ProductVariantRepository productVariantRepo) {
+                       com.eduprajna.repository.ProductVariantRepository productVariantRepo,
+                       OrderStatusHistoryRepository orderStatusHistoryRepo) {
         this.orderRepo = orderRepo;
         this.cartRepo = cartRepo;
         this.selectionRepo = selectionRepo;
         this.addressRepo = addressRepo;
         this.productRepo = productRepo;
         this.productVariantRepo = productVariantRepo;
+        this.orderStatusHistoryRepo = orderStatusHistoryRepo;
     }
 
     /**
@@ -210,13 +213,20 @@ public class OrderService {
     public Order updateStatus(Long orderId, String status) {
         Order order = orderRepo.findById(orderId)
             .orElseThrow(() -> new RuntimeException("Order not found with ID: " + orderId));
-        
+
         String oldStatus = order.getStatus();
-        order.setStatus(status);
-        Order updatedOrder = orderRepo.save(order);
-        
-        logger.info("Order {} status updated from '{}' to '{}'", orderId, oldStatus, status);
-        return updatedOrder;
+        if (!status.equalsIgnoreCase(oldStatus)) {
+            order.setStatus(status);
+            Order updatedOrder = orderRepo.save(order);
+            // Record status change in history
+            OrderStatusHistory history = new OrderStatusHistory(order, status);
+            orderStatusHistoryRepo.save(history);
+            logger.info("Order {} status updated from '{}' to '{}' and history recorded", orderId, oldStatus, status);
+            return updatedOrder;
+        } else {
+            logger.info("Order {} status unchanged (still '{}')", orderId, status);
+            return order;
+        }
     }
     
     /**

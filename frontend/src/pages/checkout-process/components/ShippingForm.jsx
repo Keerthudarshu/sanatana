@@ -426,8 +426,6 @@ const ShippingForm = ({ onNext, onAddressSelect, user, isLoading = false }) => {
         {/* Debug info - remove in production */}
         {process.env.NODE_ENV === 'development' && (
           <div className="mt-4 p-2 bg-gray-100 text-xs text-gray-600 rounded">
-            <p>Debug: selectedAddress={selectedAddress ? 'Yes' : 'No'}, showNewAddressForm={showNewAddressForm ? 'Yes' : 'No'}, isFormValid={isFormValid() ? 'Yes' : 'No'}</p>
-            <p>Button disabled: {isLoading || (!selectedAddress && !showNewAddressForm) || (showNewAddressForm && !isFormValid()) ? 'Yes' : 'No'}</p>
           </div>
         )}
       </form>
