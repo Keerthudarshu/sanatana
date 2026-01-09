@@ -3,7 +3,7 @@ import React from 'react';
 const essentialOils = [
   { id: 18, name: 'Saflower Oil', img: '/assets/images/esential oils/Saflower oil Bottle.png' },
   { id: 19, name: 'Sesame Oil', img: '/assets/images/esential oils/Sesame oil bottle.png' },
-  { id: 20, name: 'Flax Seed Oil', img: '/assets/images/esential oils/Flax seed oil bottle.png' },
+  { id: 20, name: 'Flax Seed Oil', img: '/assets/images/esential oils/Flax seed oil.png' },
   { id: 21, name: 'Niger Oil', img: '/assets/images/esential oils/Niger oil Bottle.png' },
   { id: 22, name: 'Virgin Coconut Oil', img: '/assets/images/esential oils/V Coconut oil Bottle.png' },
   { id: 23, name: 'Mustard Oil', img: '/assets/images/esential oils/Mustard oil bottle.png' },

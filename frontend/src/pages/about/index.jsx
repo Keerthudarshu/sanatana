@@ -111,15 +111,12 @@ const AboutPage = () => {
                 </div>
                 
                 <div className="relative">
-                  <div className="relative bg-white rounded-2xl shadow-2xl overflow-hidden">
-                    <img
-                      src="/assets/store.jpg"
-                      alt="Traditional Indian Spices"
-                      className="w-full h-80 object-cover"
-                    />
-                    <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent">
-                    </div>
-                  </div>
+                  <img
+                    src="/assets/images/store.jpg"
+                    alt="Sanatana Parampare Store"
+                    className="w-full h-80 object-cover"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent"></div>
                 </div>
               </div>
             </div>
@@ -216,6 +213,32 @@ const AboutPage = () => {
                         {process.description}
                       </p>
                     </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Store Gallery Section */}
+          <section className="py-16 bg-gradient-to-b from-accent/10 to-white">
+            <div className="container mx-auto px-4">
+              <div className="text-center mb-12">
+                <h2 className="font-heading text-3xl lg:text-4xl font-bold text-primary mb-6">
+                  Our Store Gallery
+                </h2>
+                <div className="w-24 h-1 bg-accent mx-auto mb-8"></div>
+                <p className="font-body text-lg text-muted-foreground max-w-3xl mx-auto">
+                  Take a glimpse at our store and the authentic environment where our traditional products are crafted and displayed.
+                </p>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {[1,2,3,4,5,6,7].map(num => (
+                  <div key={num} className="overflow-hidden rounded-xl shadow-lg group relative">
+                    <img
+                      src={`/assets/store/store${num}.jpg`}
+                      alt={`Sanatana Parampare Store ${num}`}
+                      className="w-full h-64 object-cover transition-transform duration-300 group-hover:scale-105"
+                    />
                   </div>
                 ))}
               </div>

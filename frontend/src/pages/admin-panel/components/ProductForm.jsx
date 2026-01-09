@@ -110,9 +110,9 @@ const ProductForm = ({ product, onSave, onCancel }) => {
     const file = e.target.files[0];
     if (file) {
       try {
-        // Check file size (limit to 5MB before compression)
-        if (file.size > 5 * 1024 * 1024) {
-          setError('Image file is too large. Please select an image smaller than 5MB.');
+        // Check file size (limit to 20MB before compression)
+        if (file.size > 20 * 1024 * 1024) {
+          setError('Image file is too large. Please select an image smaller than 20MB.');
           return;
         }
         
@@ -415,7 +415,32 @@ const ProductForm = ({ product, onSave, onCancel }) => {
             </div>
           </div>
 
-          {/* Product image upload removed. Use the Update Product Image section for image management. */}
+
+          {/* Product image upload: Only show when adding a new product */}
+          {!product && (
+            <div>
+              <label className="block text-sm font-medium text-foreground mb-1">
+                Product Image *
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleImageUpload}
+                className="block w-full text-sm text-foreground file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-primary file:text-primary-foreground hover:file:bg-primary/80"
+                required
+              />
+              {imageFile && (
+                <div className="mt-2">
+                  <span className="block text-xs text-muted-foreground mb-1">Image Preview:</span>
+                  <img
+                    src={URL.createObjectURL(imageFile)}
+                    alt="Preview"
+                    className="w-32 h-32 object-cover rounded border border-border"
+                  />
+                </div>
+              )}
+            </div>
+          )}
 
           <div>
             <label className="block text-sm font-medium text-foreground mb-1">

@@ -16,7 +16,7 @@ const Footer = () => {
       { label: "About Us", path: "/about" },
       { label: "Our Story", path: "/our-story" },
       { label: "Blog", path: "/blog" },
-      { label: "Careers", path: "/careers" }
+      { label: "Contact Us", path: "/contact" }
     ],
     customer: [
       { label: "My Account", path: "/user-account-dashboard" },
@@ -190,7 +190,17 @@ const Footer = () => {
           <div className="flex flex-col md:flex-row items-center justify-between space-y-4 md:space-y-0">
             {/* Copyright */}
             <p className="font-caption text-sm text-muted-foreground text-center md:text-left">
-              © {currentYear} sanathana-parampara. All rights reserved. Made with ❤️ in India.
+              © {currentYear} sanathana-parampara. All rights reserved.
+              <span className="mx-2">|</span>
+              Developed by{' '}
+              <a
+                href="https://www.pjntech.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-primary hover:underline font-semibold"
+              >
+                PJN Technologies
+              </a>
             </p>
 
             {/* Social Links */}
