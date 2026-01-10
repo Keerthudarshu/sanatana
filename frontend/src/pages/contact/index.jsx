@@ -76,11 +76,33 @@ const ContactPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
+    setSubmitStatus(null);
 
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      // 1. Save to database via Java backend
+      const dbResponse = await fetch('http://localhost:8080/api/contact/submit', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
+
+      if (!dbResponse.ok) throw new Error('Failed to save inquiry to database');
+
+      // 2. Send thank you email via Node.js email service
+      try {
+        await fetch('http://localhost:5001/api/send-contact-thankyou', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: formData.name,
+            email: formData.email
+          })
+        });
+      } catch (emailErr) {
+        console.error('Failed to send thank you email:', emailErr);
+        // We don't fail the whole process if only email fails
+      }
+
       setSubmitStatus('success');
       setFormData({
         name: '',
@@ -89,9 +111,10 @@ const ContactPage = () => {
         subject: '',
         message: ''
       });
-      
+
       setTimeout(() => setSubmitStatus(null), 5000);
     } catch (error) {
+      console.error('Contact form submission failed:', error);
       setSubmitStatus('error');
       setTimeout(() => setSubmitStatus(null), 5000);
     } finally {
@@ -115,7 +138,7 @@ const ContactPage = () => {
 
       <div className="min-h-screen bg-background">
         <Header />
-        
+
         <main className="pt-6">
           <div className="container mx-auto px-4">
             <Breadcrumb customItems={breadcrumbItems} />
@@ -128,7 +151,7 @@ const ContactPage = () => {
                 Get in Touch
               </h1>
               <p className="font-body text-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-                Have questions about our traditional food products? Need help with your order? 
+                Have questions about our traditional food products? Need help with your order?
                 Our dedicated team is here to assist you with all your queries.
               </p>
             </div>
@@ -178,13 +201,13 @@ const ContactPage = () => {
           <section className="py-16 bg-gradient-to-b from-green-50 to-white">
             <div className="container mx-auto px-4">
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-                
+
                 {/* Contact Form */}
                 <div className="bg-white rounded-2xl shadow-xl p-8">
                   <h2 className="font-heading text-2xl font-bold text-primary mb-6">
                     Send us a Message
                   </h2>
-                  
+
                   {submitStatus === 'success' && (
                     <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded-lg mb-6">
                       <div className="flex items-center gap-2">
@@ -224,7 +247,7 @@ const ContactPage = () => {
                         required
                       />
                     </div>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                       <Input
                         label="Phone Number"
@@ -283,7 +306,7 @@ const ContactPage = () => {
                     <h3 className="font-heading text-2xl font-bold text-primary mb-6">
                       Visit Our Store
                     </h3>
-                    
+
                     <div className="space-y-6">
                       <div className="flex gap-4">
                         <Icon name="MapPin" size={24} className="text-accent flex-shrink-0 mt-1" />
@@ -326,7 +349,7 @@ const ContactPage = () => {
                     <h3 className="font-heading text-2xl font-bold text-primary mb-6">
                       Quick Help
                     </h3>
-                    
+
                     <div className="space-y-4">
                       <div className="border-l-4 border-accent pl-4">
                         <h4 className="font-heading font-semibold text-foreground mb-2">Shipping Information</h4>
@@ -334,14 +357,14 @@ const ContactPage = () => {
                           Free shipping above ₹499. Delivery within 2-5 business days.
                         </p>
                       </div>
-                      
+
                       <div className="border-l-4 border-accent pl-4">
                         <h4 className="font-heading font-semibold text-foreground mb-2">Return Policy</h4>
                         <p className="font-body text-muted-foreground text-sm">
                           Easy returns within 7 days of delivery for unopened products.
                         </p>
                       </div>
-                      
+
                       <div className="border-l-4 border-accent pl-4">
                         <h4 className="font-heading font-semibold text-foreground mb-2">Product Questions</h4>
                         <p className="font-body text-muted-foreground text-sm">
@@ -362,7 +385,7 @@ const ContactPage = () => {
                 Ready to Experience Traditional Flavors?
               </h2>
               <p className="font-body text-xl text-white/90 mb-8 max-w-3xl mx-auto">
-                Join thousands of satisfied customers who trust Sanatana Parampare for authentic, 
+                Join thousands of satisfied customers who trust Sanatana Parampare for authentic,
                 pure, and traditional food products.
               </p>
               <Link

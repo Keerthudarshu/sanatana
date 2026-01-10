@@ -42,7 +42,7 @@ const CheckoutProcess = () => {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [currentLocation, setCurrentLocation] = useState(null);
   const [error, setError] = useState(null);
-  const [popup, setPopup] = useState({ open: false, message: '', type: 'info' });
+  const [successPopup, setSuccessPopup] = useState({ open: false, message: '', orderId: null });
   const [orderReviewData, setOrderReviewData] = useState(null);
 
   // Form data states for each step
@@ -53,8 +53,8 @@ const CheckoutProcess = () => {
   // Redirect to login if not authenticated
   useEffect(() => {
     if (!loading && !user) {
-      navigate('/user-login', { 
-        state: { 
+      navigate('/user-login', {
+        state: {
           from: '/checkout-process',
           message: 'Please sign in to continue with checkout'
         }
@@ -64,7 +64,7 @@ const CheckoutProcess = () => {
 
   // Validate cart is not empty - show message instead of redirecting for testing
   const [showEmptyCartMessage, setShowEmptyCartMessage] = useState(false);
-  
+
   useEffect(() => {
     if (!loading && user && (!cartItems || cartItems.length === 0)) {
       setShowEmptyCartMessage(true);
@@ -79,15 +79,15 @@ const CheckoutProcess = () => {
       // First, try to get existing products from the backend
       const response = await fetch('http://localhost:8080/api/admin/products');
       let availableProducts = [];
-      
+
       if (response.ok) {
         availableProducts = await response.json();
       }
-      
+
       // If no products exist in backend, create some test products first
       if (availableProducts.length === 0) {
         console.log('No products found in backend, creating test products...');
-        
+
         // Create test products
         const testProducts = [
           {
@@ -111,7 +111,7 @@ const CheckoutProcess = () => {
             isActive: true
           }
         ];
-        
+
         // Add products to backend
         for (const product of testProducts) {
           try {
@@ -122,7 +122,7 @@ const CheckoutProcess = () => {
               },
               body: JSON.stringify(product)
             });
-            
+
             if (createResponse.ok) {
               const createdProduct = await createResponse.json();
               availableProducts.push(createdProduct);
@@ -133,11 +133,11 @@ const CheckoutProcess = () => {
           }
         }
       }
-      
+
       // Now add items to cart using available products
       if (availableProducts.length > 0) {
         const itemsToAdd = availableProducts.slice(0, 2).map((product, index) => ({
-          id: `${product.id}-default`,
+          id: `${product.id} -default `,
           productId: product.id,
           name: product.name,
           price: product.price,
@@ -147,7 +147,7 @@ const CheckoutProcess = () => {
           category: product.category,
           brand: product.brand
         }));
-        
+
         for (const item of itemsToAdd) {
           try {
             await addToCart(item, 1);
@@ -280,7 +280,7 @@ const CheckoutProcess = () => {
 
     try {
       console.log('Placing order for user:', user?.email);
-      
+
       if (!user?.email) {
         throw new Error('User not authenticated');
       }
@@ -295,8 +295,51 @@ const CheckoutProcess = () => {
         console.log('Order placed successfully:', savedOrder);
 
         clearCart();
-        alert(`Order placed successfully! Order ID: ${savedOrder.id}.`);
-        navigate('/user-account-dashboard?section=orders');
+        console.log('DEBUG: savedOrder for COD:', savedOrder);
+
+        // Send order confirmation email
+        try {
+          console.log('Sending email confirmation with data:', {
+            email: user.email,
+            orderId: savedOrder.id || savedOrder.orderId,
+            itemsCount: cartItems.length
+          });
+
+          await fetch('http://localhost:5001/api/send-confirmation', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: user.email,
+              orderId: savedOrder?.id || savedOrder?.orderId || (typeof savedOrder === 'number' || typeof savedOrder === 'string' ? savedOrder : 'N/A'),
+              items: cartItems.map(item => ({
+                name: item.name,
+                price: item.price,
+                quantity: item.quantity,
+                weightValue: item.weightValue || item.weight,
+                weightUnit: item.weightUnit || ''
+              })),
+              subtotal: subtotal,
+              shippingCost: shippingCost,
+              discountAmount: discountAmount,
+              total: total
+            })
+          });
+          console.log('Order confirmation email request sent');
+        } catch (emailErr) {
+          console.error('Failed to send order confirmation email:', emailErr);
+        }
+
+        setSuccessPopup({
+          open: true,
+          message: `Order placed successfully! Order ID: ${savedOrder.id || savedOrder.orderId || (typeof savedOrder === 'number' || typeof savedOrder === 'string' ? savedOrder : 'N/A')}.`,
+          orderId: savedOrder.id || savedOrder.orderId
+        });
+
+        // Navigation will happen after popup close or timeout
+        setTimeout(() => {
+          navigate('/user-account-dashboard?section=orders');
+        }, 3000);
+
         setIsProcessing(false);
         return;
       }
@@ -328,7 +371,7 @@ const CheckoutProcess = () => {
           email: user?.email,
           contact: user?.phone || ''
         },
-        handler: async function(response) {
+        handler: async function (response) {
           try {
             const payload = {
               email: user.email,
@@ -341,33 +384,53 @@ const CheckoutProcess = () => {
             const savedOrder = verifyResult?.order || verifyResult;
 
             clearCart();
-            setPopup({ open: true, message: `Payment successful and order placed! Order ID: ${savedOrder.id || 'N/A'}`, type: 'success' });
+
+            // Send order confirmation email
+            try {
+              console.log('DEBUG: verifyResult for Online:', verifyResult);
+              console.log('DEBUG: savedOrder for Online:', savedOrder);
+
+              await fetch('http://localhost:5001/api/send-confirmation', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: user.email,
+                  orderId: savedOrder?.id || savedOrder?.orderId || 'N/A',
+                  items: cartItems.map(item => ({
+                    name: item.name,
+                    price: item.price,
+                    quantity: item.quantity,
+                    weightValue: item.weightValue || item.weight,
+                    weightUnit: item.weightUnit || ''
+                  })),
+                  subtotal: subtotal,
+                  shippingCost: shippingCost,
+                  discountAmount: discountAmount,
+                  total: total
+                })
+              });
+              console.log('Order confirmation email request sent (Online)');
+            } catch (emailErr) {
+              console.error('Failed to send order confirmation email:', emailErr);
+            }
+
+            setSuccessPopup({
+              open: true,
+              message: `Payment successful and order placed! Order ID: ${savedOrder.id || 'N/A'}.`,
+              orderId: savedOrder.id
+            });
+
             setTimeout(() => {
-              setPopup({ open: false, message: '', type: 'info' });
+              setSuccessPopup(prev => ({ ...prev, open: false }));
               navigate('/user-account-dashboard?section=orders');
-            }, 2500);
-            // ...existing code...
-            return (
-              <>
-                {/* ...existing checkout UI... */}
-                <Popup
-                  open={popup.open}
-                  message={popup.message}
-                  type={popup.type}
-                  onClose={() => {
-                    setPopup({ open: false, message: '', type: 'info' });
-                    navigate('/user-account-dashboard?section=orders');
-                  }}
-                />
-              </>
-            );
+            }, 3000);
           } catch (verErr) {
             console.error('Payment verification failed', verErr);
             setError(verErr.message || 'Payment verification failed');
           }
         },
         modal: {
-          ondismiss: function() {
+          ondismiss: function () {
             setError('Payment cancelled by user');
           }
         }
@@ -630,6 +693,16 @@ const CheckoutProcess = () => {
           </div>
         </div>
       </main>
+      {/* Success Popup */}
+      <Popup
+        open={successPopup.open}
+        message={successPopup.message}
+        type="success"
+        onClose={() => {
+          setSuccessPopup({ ...successPopup, open: false });
+          navigate('/user-account-dashboard?section=orders');
+        }}
+      />
     </div>
   );
 };

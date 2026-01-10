@@ -23,7 +23,7 @@ import com.eduprajna.service.UserService;
 
 @RestController
 @RequestMapping("/api/payments/razorpay")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:3000", "http://127.0.0.1:3000" }, allowCredentials = "true")
 public class PaymentController {
     private static final Logger logger = LoggerFactory.getLogger(PaymentController.class);
 
@@ -38,10 +38,11 @@ public class PaymentController {
     @Value("${razorpay.keyId:}")
     private String razorpayKeyId;
 
-    public PaymentController(RazorpayService razorpayService, OrderService orderService, UserService userService, OrderRepository orderRepo,
-                             com.eduprajna.service.CartService cartService,
-                             com.eduprajna.repository.CheckoutSelectionRepository selectionRepo,
-                             com.eduprajna.repository.AddressRepository addressRepo) {
+    public PaymentController(RazorpayService razorpayService, OrderService orderService, UserService userService,
+            OrderRepository orderRepo,
+            com.eduprajna.service.CartService cartService,
+            com.eduprajna.repository.CheckoutSelectionRepository selectionRepo,
+            com.eduprajna.repository.AddressRepository addressRepo) {
         this.razorpayService = razorpayService;
         this.orderService = orderService;
         this.userService = userService;
@@ -84,14 +85,14 @@ public class PaymentController {
             // Calculate subtotal using cart item prices, with fallback to product price
             double subtotal = 0.0;
             for (com.eduprajna.entity.CartItem ci : cart) {
-                double price = ci.getPriceAtAdd() != null && ci.getPriceAtAdd() > 0 ? ci.getPriceAtAdd() : 
-                               (ci.getProduct().getPrice() != null ? ci.getProduct().getPrice().doubleValue() : 0.0);
+                double price = ci.getPriceAtAdd() != null && ci.getPriceAtAdd() > 0 ? ci.getPriceAtAdd()
+                        : (ci.getProduct().getPrice() != null ? ci.getProduct().getPrice().doubleValue() : 0.0);
                 subtotal += price * ci.getQuantity();
-                logger.debug("Cart item: product={}, quantity={}, price={}, line_total={}", 
-                    ci.getProduct().getName(), ci.getQuantity(), price, price * ci.getQuantity());
+                logger.debug("Cart item: product={}, quantity={}, price={}, line_total={}",
+                        ci.getProduct().getName(), ci.getQuantity(), price, price * ci.getQuantity());
             }
             logger.debug("Calculated subtotal: {}", subtotal);
-            
+
             double shippingFee = "express".equalsIgnoreCase(selection.getDeliveryOption()) ? 100.0 : 50.0;
             double total = subtotal + shippingFee;
 
@@ -145,7 +146,7 @@ public class PaymentController {
             Order updated = orderRepo.save(placed);
 
             Map<String, Object> resp = new HashMap<>();
-            resp.put("order", updated);
+            resp.put("order", new com.eduprajna.dto.OrderDTO(updated));
             return ResponseEntity.ok(resp);
 
         } catch (Exception e) {

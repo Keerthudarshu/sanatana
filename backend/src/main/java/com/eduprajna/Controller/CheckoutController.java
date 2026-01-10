@@ -24,25 +24,26 @@ import java.util.stream.Collectors;
  * CheckoutController handles the multi-step checkout process
  * 
  * Flow:
- * 1. POST /selection - Save user's checkout selections (address, delivery, payment)
+ * 1. POST /selection - Save user's checkout selections (address, delivery,
+ * payment)
  * 2. GET /review - Get order review with all details
  * 3. POST /place-order - Place the order transactionally
  */
 @RestController
 @RequestMapping("/api/checkout")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
+@CrossOrigin(origins = { "http://localhost:3000", "http://127.0.0.1:3000" }, allowCredentials = "true")
 public class CheckoutController {
     private static final Logger logger = LoggerFactory.getLogger(CheckoutController.class);
-    
+
     private final UserService userService;
     private final CartService cartService;
     private final CheckoutSelectionRepository selectionRepo;
     private final AddressRepository addressRepo;
     private final OrderService orderService;
 
-    public CheckoutController(UserService userService, CartService cartService, 
-                            CheckoutSelectionRepository selectionRepo, AddressRepository addressRepo, 
-                            OrderService orderService) {
+    public CheckoutController(UserService userService, CartService cartService,
+            CheckoutSelectionRepository selectionRepo, AddressRepository addressRepo,
+            OrderService orderService) {
         this.userService = userService;
         this.cartService = cartService;
         this.selectionRepo = selectionRepo;
@@ -53,12 +54,12 @@ public class CheckoutController {
     /**
      * Helper method to validate and get user by email
      */
-    private User requireUser(String email) { 
+    private User requireUser(String email) {
         if (email == null || email.trim().isEmpty()) {
             throw new IllegalArgumentException("Email is required");
         }
         return userService.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found: " + email)); 
+                .orElseThrow(() -> new RuntimeException("User not found: " + email));
     }
 
     /**
@@ -69,33 +70,33 @@ public class CheckoutController {
     public ResponseEntity<?> saveSelection(@RequestParam("email") String email, @RequestBody Map<String, Object> body) {
         try {
             logger.debug("Saving checkout selection for user: {}", email);
-            
+
             User user = requireUser(email);
-            
+
             // Get existing selection or create new one
             CheckoutSelection selection = selectionRepo.findByUser(user)
-                .orElseGet(() -> {
-                    CheckoutSelection s = new CheckoutSelection();
-                    s.setUser(user);
-                    // Set default values to avoid null constraint violations
-                    s.setDeliveryOption("standard");
-                    s.setPaymentMethod("cod");
-                    return s;
-                });
-            
+                    .orElseGet(() -> {
+                        CheckoutSelection s = new CheckoutSelection();
+                        s.setUser(user);
+                        // Set default values to avoid null constraint violations
+                        s.setDeliveryOption("standard");
+                        s.setPaymentMethod("cod");
+                        return s;
+                    });
+
             // Update selection based on provided data
             if (body.get("addressId") != null) {
                 Long addressId = ((Number) body.get("addressId")).longValue();
                 // Validate address belongs to user
                 Address address = addressRepo.findById(addressId)
-                    .orElseThrow(() -> new RuntimeException("Address not found: " + addressId));
+                        .orElseThrow(() -> new RuntimeException("Address not found: " + addressId));
                 if (!address.getUser().getId().equals(user.getId())) {
                     return ResponseEntity.badRequest().body("Address does not belong to user");
                 }
                 selection.setAddressId(addressId);
                 logger.debug("Updated address selection: {}", addressId);
             }
-            
+
             if (body.get("deliveryOption") != null) {
                 String deliveryOption = (String) body.get("deliveryOption");
                 if (!isValidDeliveryOption(deliveryOption)) {
@@ -104,7 +105,7 @@ public class CheckoutController {
                 selection.setDeliveryOption(deliveryOption);
                 logger.debug("Updated delivery option: {}", deliveryOption);
             }
-            
+
             if (body.get("paymentMethod") != null) {
                 String paymentMethod = (String) body.get("paymentMethod");
                 if (!isValidPaymentMethod(paymentMethod)) {
@@ -113,11 +114,11 @@ public class CheckoutController {
                 selection.setPaymentMethod(paymentMethod);
                 logger.debug("Updated payment method: {}", paymentMethod);
             }
-            
+
             CheckoutSelection saved = selectionRepo.save(selection);
             logger.info("Checkout selection saved for user: {}", email);
             return ResponseEntity.ok(saved);
-            
+
         } catch (IllegalArgumentException e) {
             logger.error("Invalid request for user: {}", email, e);
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -129,20 +130,20 @@ public class CheckoutController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal server error");
         }
     }
-    
+
     /**
      * Validate delivery option
      */
     private boolean isValidDeliveryOption(String option) {
         return option != null && (option.equals("standard") || option.equals("express"));
     }
-    
+
     /**
      * Validate payment method
      */
     private boolean isValidPaymentMethod(String method) {
-        return method != null && (method.equals("cod") || method.equals("card") || 
-                                 method.equals("upi") || method.equals("wallet"));
+        return method != null && (method.equals("cod") || method.equals("card") ||
+                method.equals("upi") || method.equals("wallet"));
     }
 
     /**
@@ -153,13 +154,13 @@ public class CheckoutController {
     public ResponseEntity<?> review(@RequestParam("email") String email) {
         try {
             logger.debug("Getting order review for user: {}", email);
-            
+
             // 1. Validate user
             User user = requireUser(email);
 
             // 2. Validate selection exists
             CheckoutSelection selection = selectionRepo.findByUser(user)
-                .orElse(null);
+                    .orElse(null);
             if (selection == null) {
                 return ResponseEntity.badRequest().body("No checkout selection found. Please complete checkout steps.");
             }
@@ -171,7 +172,7 @@ public class CheckoutController {
 
             // 4. Validate address exists and belongs to user
             Address address = addressRepo.findById(selection.getAddressId())
-                .orElse(null);
+                    .orElse(null);
             if (address == null) {
                 return ResponseEntity.badRequest().body("Selected address not found. Please select a valid address.");
             }
@@ -223,10 +224,10 @@ public class CheckoutController {
             reviewDTO.shippingFee = shippingFee;
             reviewDTO.total = total;
 
-            logger.info("Order review generated for user: {} with {} items, total: {}", 
-                       email, items.size(), total);
+            logger.info("Order review generated for user: {} with {} items, total: {}",
+                    email, items.size(), total);
             return ResponseEntity.ok(reviewDTO);
-            
+
         } catch (IllegalArgumentException e) {
             logger.error("Invalid request for user: {}", email, e);
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -239,7 +240,6 @@ public class CheckoutController {
         }
     }
 
-
     /**
      * Place order transactionally
      * This endpoint finalizes the order and clears the cart
@@ -249,40 +249,41 @@ public class CheckoutController {
     public ResponseEntity<?> placeOrder(@RequestParam("email") String email) {
         try {
             logger.debug("Placing order for user: {}", email);
-            
+
             User user = requireUser(email);
-            
+
             // Validate that all checkout selections are complete
             CheckoutSelection selection = selectionRepo.findByUser(user)
-                .orElse(null);
+                    .orElse(null);
             if (selection == null) {
                 return ResponseEntity.badRequest().body("No checkout selection found. Please complete checkout steps.");
             }
-            
+
             if (selection.getAddressId() == null) {
                 return ResponseEntity.badRequest().body("No address selected. Please select a delivery address.");
             }
-            
+
             if (selection.getDeliveryOption() == null || selection.getDeliveryOption().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("No delivery option selected. Please choose delivery method.");
             }
-            
+
             if (selection.getPaymentMethod() == null || selection.getPaymentMethod().trim().isEmpty()) {
                 return ResponseEntity.badRequest().body("No payment method selected. Please choose payment method.");
             }
-            
+
             // Validate cart is not empty
             List<CartItem> cart = cartService.getCart(user);
             if (cart == null || cart.isEmpty()) {
                 return ResponseEntity.badRequest().body("Your cart is empty. Please add items before placing order.");
             }
-            
+
             // Place the order
             Order order = orderService.placeOrder(user);
-            
+
             logger.info("Order placed successfully for user: {} with order ID: {}", email, order.getId());
-            return ResponseEntity.ok(order);
-            
+
+            // Return DTO to avoid circular references
+            return ResponseEntity.ok(new com.eduprajna.dto.OrderDTO(order));
         } catch (IllegalArgumentException e) {
             logger.error("Invalid request for user: {}", email, e);
             return ResponseEntity.badRequest().body(e.getMessage());
@@ -295,5 +296,3 @@ public class CheckoutController {
         }
     }
 }
-
-

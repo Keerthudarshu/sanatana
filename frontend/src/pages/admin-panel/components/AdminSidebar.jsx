@@ -1,8 +1,27 @@
 
 import React from 'react';
-import { X, LayoutDashboard, Package, Users, ShoppingCart, Settings } from 'lucide-react';
+import { X, LayoutDashboard, Package, Users, ShoppingCart, Settings, MessageSquare } from 'lucide-react';
 
 const AdminSidebar = ({ activeSection, onSectionChange, isOpen, onClose }) => {
+  const [inquiryCount, setInquiryCount] = React.useState(0);
+
+  React.useEffect(() => {
+    const fetchInquiryCount = async () => {
+      try {
+        const response = await fetch('http://localhost:8080/api/contact/unread-count');
+        if (response.ok) {
+          const count = await response.json();
+          setInquiryCount(count);
+        }
+      } catch (error) {
+        console.error('Error fetching inquiry count:', error);
+      }
+    };
+    fetchInquiryCount();
+    const interval = setInterval(fetchInquiryCount, 60000); // Check every minute
+    return () => clearInterval(interval);
+  }, []);
+
   const menuItems = [
     {
       id: 'dashboard',
@@ -19,7 +38,7 @@ const AdminSidebar = ({ activeSection, onSectionChange, isOpen, onClose }) => {
     {
       id: 'update-product-image',
       label: 'Update Product Image',
-      icon: Package, // You can replace with a more suitable icon if desired
+      icon: Package,
       description: 'Edit product images'
     },
     {
@@ -35,6 +54,13 @@ const AdminSidebar = ({ activeSection, onSectionChange, isOpen, onClose }) => {
       description: 'Order management'
     },
     {
+      id: 'inquiries',
+      label: 'Inquiries',
+      icon: MessageSquare,
+      description: 'Customer messages',
+      badge: inquiryCount > 0 ? inquiryCount : null
+    },
+    {
       id: 'settings',
       label: 'Settings',
       icon: Settings,
@@ -46,12 +72,12 @@ const AdminSidebar = ({ activeSection, onSectionChange, isOpen, onClose }) => {
     <>
       {/* Mobile Overlay */}
       {isOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={onClose}
         />
       )}
-      
+
       {/* Sidebar */}
       <div className={`
         fixed top-0 left-0 h-full w-64 bg-card border-r border-border z-50 transform transition-transform duration-300 ease-in-out
@@ -86,17 +112,22 @@ const AdminSidebar = ({ activeSection, onSectionChange, isOpen, onClose }) => {
                 }}
                 className={`
                   w-full flex items-center space-x-3 px-4 py-3 rounded-lg text-left transition-colors duration-200
-                  ${activeSection === item.id 
-                    ? 'bg-primary text-primary-foreground' 
+                  ${activeSection === item.id
+                    ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted'
                   }
                 `}
               >
                 <Icon size={20} />
-                <div>
+                <div className="flex-1">
                   <div className="font-body font-medium">{item.label}</div>
                   <div className="text-xs opacity-75">{item.description}</div>
                 </div>
+                {item.badge && (
+                  <span className="flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-accent text-white text-[10px] font-bold rounded-full">
+                    {item.badge}
+                  </span>
+                )}
               </button>
             );
           })}

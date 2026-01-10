@@ -13,13 +13,28 @@ const NewsletterSection = () => {
     if (!email?.trim()) return;
 
     setIsLoading(true);
-    
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubscribed(true);
+
+    try {
+      const response = await fetch('http://localhost:5001/api/send-subscription-confirmation', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (response.ok) {
+        setIsSubscribed(true);
+        setEmail('');
+      } else {
+        console.error('Failed to send subscription confirmation');
+        // Optionally show an error message to the user
+      }
+    } catch (error) {
+      console.error('Error in subscription:', error);
+    } finally {
       setIsLoading(false);
-      setEmail('');
-    }, 1500);
+    }
   };
 
   const benefits = [
@@ -124,7 +139,7 @@ const NewsletterSection = () => {
                   required
                   className="mb-4"
                 />
-                
+
                 <Button
                   type="submit"
                   variant="default"

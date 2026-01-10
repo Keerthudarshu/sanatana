@@ -8,6 +8,7 @@ import UserManagement from './components/UserManagement';
 import OrderManagement from './components/OrderManagement';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
+import InquiryManagement from './components/InquiryManagement';
 
 const AdminPanel = () => {
   const [currentUser, setCurrentUser] = useState(null);
@@ -20,7 +21,7 @@ const AdminPanel = () => {
     const checkAuthentication = () => {
       const adminUser = JSON.parse(localStorage.getItem('adminUser') || 'null');
       const sessionData = localStorage.getItem('neenu_auth_session');
-      
+
       // Trust backend-issued session stored at login
       const isAdmin = (adminUser?.role || '').toLowerCase() === 'admin';
       if (!isAdmin) {
@@ -29,19 +30,19 @@ const AdminPanel = () => {
         navigate('/admin-login', { replace: true });
         return false;
       }
-      
+
       setCurrentUser(adminUser);
       return true;
     };
 
     // Run authentication check
     const isAuthenticated = checkAuthentication();
-    
+
     // Set up periodic authentication check (every 30 seconds)
     const authInterval = setInterval(() => {
       checkAuthentication();
     }, 30000);
-    
+
     return () => clearInterval(authInterval);
   }, [navigate]);
 
@@ -59,6 +60,8 @@ const AdminPanel = () => {
         return <OrderManagement />;
       case 'settings':
         return <Settings />;
+      case 'inquiries':
+        return <InquiryManagement />;
       default:
         return <Dashboard />;
     }
@@ -74,7 +77,7 @@ const AdminPanel = () => {
         user={currentUser}
         onToggleSidebar={() => setIsSidebarOpen(!isSidebarOpen)}
       />
-      
+
       <div className="flex">
         <AdminSidebar
           activeSection={activeSection}
@@ -82,7 +85,7 @@ const AdminPanel = () => {
           isOpen={isSidebarOpen}
           onClose={() => setIsSidebarOpen(false)}
         />
-        
+
         <main className="flex-1 p-6">
           <div className="max-w-7xl mx-auto">
             {renderActiveSection()}
