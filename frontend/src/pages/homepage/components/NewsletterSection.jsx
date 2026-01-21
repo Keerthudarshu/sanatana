@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
+import apiClient from '../../../services/api';
 
 const NewsletterSection = () => {
   const [email, setEmail] = useState('');
@@ -15,20 +16,14 @@ const NewsletterSection = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch('http://localhost:5001/api/send-subscription-confirmation', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await apiClient.post('/send-subscription-confirmation', { email });
 
-      if (response.ok) {
+      // check status if apiClient doesn't throw, although interceptor usually throws on error
+      if (response.status === 200 || response.status === 201) {
         setIsSubscribed(true);
         setEmail('');
       } else {
         console.error('Failed to send subscription confirmation');
-        // Optionally show an error message to the user
       }
     } catch (error) {
       console.error('Error in subscription:', error);

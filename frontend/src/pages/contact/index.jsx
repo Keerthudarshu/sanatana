@@ -7,7 +7,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Icon from '../../components/AppIcon';
-import { API_CONFIG } from '../../config/apiConfig';
+import apiClient from '../../services/api';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -81,23 +81,14 @@ const ContactPage = () => {
 
     try {
       // 1. Save to database via Java backend
-      const dbResponse = await fetch('${API_CONFIG.BASE_URL}/api/contact/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData)
-      });
+      // 1. Save to database via Java backend
+      const dbResponse = await apiClient.post('/contact/submit', formData);
 
-      if (!dbResponse.ok) throw new Error('Failed to save inquiry to database');
-
-      // 2. Send thank you email via Node.js email service
+      // 2. Send thank you email (optional failure)
       try {
-        await fetch('${API_CONFIG.BASE_URL}/api/send-contact-thankyou', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email
-          })
+        await apiClient.post('/send-contact-thankyou', {
+          name: formData.name,
+          email: formData.email
         });
       } catch (emailErr) {
         console.error('Failed to send thank you email:', emailErr);
