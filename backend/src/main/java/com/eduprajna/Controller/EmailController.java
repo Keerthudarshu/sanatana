@@ -50,4 +50,25 @@ public class EmailController {
                     .body(Map.of("message", "Failed to send email. Check backend logs."));
         }
     }
+
+    @PostMapping("/send-confirmation")
+    public ResponseEntity<?> sendOrderConfirmation(@RequestBody Map<String, Object> payload) {
+        try {
+            if (!payload.containsKey("email") || !payload.containsKey("items")) {
+                return ResponseEntity.badRequest()
+                        .body(Map.of("success", false, "message", "Email and items are required"));
+            }
+
+            boolean sent = emailService.sendOrderConfirmation(payload);
+            if (sent) {
+                return ResponseEntity.ok(Map.of("success", true, "message", "Confirmation email sent"));
+            } else {
+                return ResponseEntity.internalServerError().body(
+                        Map.of("success", false, "message", "Failed to send confirmation email. Check backend logs."));
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("success", false, "message", "Error: " + e.getMessage()));
+        }
+    }
 }
