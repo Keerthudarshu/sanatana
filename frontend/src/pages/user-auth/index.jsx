@@ -7,7 +7,7 @@ import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Icon from '../../components/AppIcon';
 import dataService from '../../services/dataService';
-import { API_CONFIG } from '../../config/apiConfig';
+import apiClient from '../../services/api';
 
 const UserAuth = () => {
   const navigate = useNavigate();
@@ -83,34 +83,28 @@ const UserAuth = () => {
         }
       } else {
         // Registration logic (call /api/auth/register)
-        const res = await fetch('${API_CONFIG.BASE_URL}/api/auth/register', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            name: formData.name,
-            email: formData.email,
-            password: formData.password,
-            phone: formData.phone
-          }),
+        // Registration logic (call /api/auth/register)
+        const res = await apiClient.post('/auth/register', {
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          phone: formData.phone
         });
-        if (res.ok) {
-          setIsLogin(true);
-          setFormData({
-            name: '',
-            email: '',
-            phone: '',
-            password: '',
-            confirmPassword: ''
-          });
-          setErrors({});
-          navigate('/user-login', { state: { message: 'Account created successfully! Please sign in.' } });
-        } else {
-          const errorData = await res.json().catch(() => ({}));
-          setError(errorData.message || 'Registration failed. Please try again.');
-        }
+
+        setIsLogin(true);
+        setFormData({
+          name: '',
+          email: '',
+          phone: '',
+          password: '',
+          confirmPassword: ''
+        });
+        setErrors({});
+        navigate('/user-login', { state: { message: 'Account created successfully! Please sign in.' } });
       }
     } catch (err) {
-      setError('An error occurred. Please try again.');
+      const errorData = err.response?.data || {};
+      setError(errorData.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }

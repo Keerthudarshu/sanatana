@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 // import dataService from '../services/dataService'
-import { API_CONFIG } from '../config/apiConfig';
+import apiClient from '../services/api';
 
 const AuthContext = createContext({})
 
@@ -32,22 +32,17 @@ export const AuthProvider = ({ children, setError }) => {
   const signIn = async (email, password) => {
     try {
       setLoading(true);
-      const res = await fetch(`${API_CONFIG.BASE_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password })
-      });
-      if (res.ok) {
-        const user = await res.json();
-        setUser(user);
-        setUserProfile(user);
-        localStorage.setItem('user', JSON.stringify(user));
-        return { user, error: null };
-      } else {
-        return { user: null, error: { message: 'Invalid credentials' } };
-      }
+      const res = await apiClient.post('/auth/login', { email, password });
+
+      const user = res.data;
+      setUser(user);
+      setUserProfile(user);
+      localStorage.setItem('user', JSON.stringify(user));
+      return { user, error: null };
     } catch (error) {
-      return { user: null, error };
+      // Axios error handling
+      const errorMessage = error.response?.data?.message || 'Invalid credentials';
+      return { user: null, error: { message: errorMessage } };
     } finally {
       setLoading(false);
     }
