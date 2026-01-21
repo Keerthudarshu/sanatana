@@ -20,9 +20,16 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
-    
+
+    private final com.eduprajna.service.CustomUserDetailsService userDetailsService;
+
+    public SecurityConfig(com.eduprajna.service.CustomUserDetailsService userDetailsService) {
+        this.userDetailsService = userDetailsService;
+    }
+
     /**
      * Password encoder bean using BCrypt
+     * 
      * @return BCryptPasswordEncoder instance
      */
     @Bean
@@ -30,20 +37,38 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
+    @Bean
+    public org.springframework.security.authentication.AuthenticationManager authenticationManager(
+            org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration authenticationConfiguration)
+            throws Exception {
+        return authenticationConfiguration.getAuthenticationManager();
+    }
+
+    @Bean
+    public org.springframework.security.authentication.dao.DaoAuthenticationProvider authenticationProvider() {
+        org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
+        authProvider.setUserDetailsService(userDetailsService);
+        authProvider.setPasswordEncoder(passwordEncoder());
+        return authProvider;
+    }
+
     /**
-     * Security filter chain to allow public password-reset endpoints and basic auth for the rest.
+     * Security filter chain to allow public password-reset endpoints and basic auth
+     * for the rest.
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(AbstractHttpConfigurer::disable)
-            .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .authorizeHttpRequests(auth -> auth
-                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                .anyRequest().permitAll()
-            )
-            .httpBasic(AbstractHttpConfigurer::disable)
-            .formLogin(AbstractHttpConfigurer::disable);
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/auth/**").permitAll() // Explicitly allow auth endpoints
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                        .anyRequest().permitAll() // Keep existing open policy for now, can be tightened later
+                )
+                .httpBasic(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
+                .authenticationProvider(authenticationProvider());
 
         return http.build();
     }

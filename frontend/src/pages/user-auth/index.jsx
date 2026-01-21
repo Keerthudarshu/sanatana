@@ -65,8 +65,16 @@ const UserAuth = () => {
     try {
       if (isLogin) {
         const { user, error } = await signIn(formData.email, formData.password);
-        if (user && user.role === 'user') {
-          navigate('/user-account-dashboard');
+        if (user) {
+          const role = (user.role || '').toLowerCase();
+          if (role === 'user' || role === 'customer') {
+            navigate('/user-account-dashboard');
+          } else if (role === 'admin') {
+            localStorage.setItem('adminUser', JSON.stringify(user));
+            navigate('/admin-dashboard');
+          } else {
+            setError('You are not authorized as a user.');
+          }
         } else if (error) {
           setError(error.message || 'Invalid credentials');
         } else {
