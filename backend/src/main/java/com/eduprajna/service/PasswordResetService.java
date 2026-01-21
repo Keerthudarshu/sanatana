@@ -216,7 +216,7 @@ public class PasswordResetService {
      */
     private String buildResetLink(String token) {
         // Adjust URL to your frontend domain
-        return "http://56.228.81.193:8000/reset-password?token=" + token;
+        return "http://56.228.81.193/reset-password?token=" + token;
     }
 
     /**
