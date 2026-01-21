@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import apiClient from '../../services/api';
 import './ForgotPassword.css';
 
 export default function ForgotPassword() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const resetToken = searchParams.get('token');
-  
+
   const [step, setStep] = useState(resetToken ? 2 : 1); // Step 1: Request reset, Step 2: Reset password, Step 3: Send credentials
   const [email, setEmail] = useState('');
   const [newPassword, setNewPassword] = useState('');
@@ -16,7 +17,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [method, setMethod] = useState('reset'); // 'reset' or 'credentials'
 
-  const API_URL = 'http://localhost:8080/api/password';
+  const [method, setMethod] = useState('reset'); // 'reset' or 'credentials'
 
   // Step 1: Request password reset
   const handleForgotPassword = async (e) => {
@@ -26,15 +27,9 @@ export default function ForgotPassword() {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_URL}/forgot`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await apiClient.post('/password/forgot', { email });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         setMessage(data.message);
@@ -73,18 +68,12 @@ export default function ForgotPassword() {
     }
 
     try {
-      const response = await fetch(`${API_URL}/reset`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          token: resetToken,
-          newPassword,
-        }),
+      const response = await apiClient.post('/password/reset', {
+        token: resetToken,
+        newPassword,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         setMessage(data.message);
@@ -112,15 +101,9 @@ export default function ForgotPassword() {
     setMessage('');
 
     try {
-      const response = await fetch(`${API_URL}/send-credentials`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await apiClient.post('/password/send-credentials', { email });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (data.success) {
         setMessage(data.message);
@@ -143,7 +126,7 @@ export default function ForgotPassword() {
     <div className="forgot-password-container">
       <div className="forgot-password-card">
         <h2>Password Recovery</h2>
-        
+
         {/* Method Selection */}
         {!resetToken && step === 1 && (
           <div className="method-selection">
