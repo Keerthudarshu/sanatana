@@ -17,6 +17,8 @@ import OrderSummary from './components/OrderSummary';
 import TrustSignals from './components/TrustSignals';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
+import apiClient from '../../services/api';
+import apiClient from '../../services/api';
 
 /**
  * Multi-Step Checkout Process Component
@@ -298,6 +300,7 @@ const CheckoutProcess = () => {
         console.log('DEBUG: savedOrder for COD:', savedOrder);
 
         // Send order confirmation email
+        // Send order confirmation email
         try {
           console.log('Sending email confirmation with data:', {
             email: user.email,
@@ -305,24 +308,20 @@ const CheckoutProcess = () => {
             itemsCount: cartItems.length
           });
 
-          await fetch('http://localhost:5001/api/send-confirmation', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: user.email,
-              orderId: savedOrder?.id || savedOrder?.orderId || (typeof savedOrder === 'number' || typeof savedOrder === 'string' ? savedOrder : 'N/A'),
-              items: cartItems.map(item => ({
-                name: item.name,
-                price: item.price,
-                quantity: item.quantity,
-                weightValue: item.weightValue || item.weight,
-                weightUnit: item.weightUnit || ''
-              })),
-              subtotal: subtotal,
-              shippingCost: shippingCost,
-              discountAmount: discountAmount,
-              total: total
-            })
+          await apiClient.post('/send-confirmation', {
+            email: user.email,
+            orderId: savedOrder?.id || savedOrder?.orderId || (typeof savedOrder === 'number' || typeof savedOrder === 'string' ? savedOrder : 'N/A'),
+            items: cartItems.map(item => ({
+              name: item.name,
+              price: item.price,
+              quantity: item.quantity,
+              weightValue: item.weightValue || item.weight,
+              weightUnit: item.weightUnit || ''
+            })),
+            subtotal: subtotal,
+            shippingCost: shippingCost,
+            discountAmount: discountAmount,
+            total: total
           });
           console.log('Order confirmation email request sent');
         } catch (emailErr) {
@@ -390,24 +389,20 @@ const CheckoutProcess = () => {
               console.log('DEBUG: verifyResult for Online:', verifyResult);
               console.log('DEBUG: savedOrder for Online:', savedOrder);
 
-              await fetch('http://localhost:5001/api/send-confirmation', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email: user.email,
-                  orderId: savedOrder?.id || savedOrder?.orderId || 'N/A',
-                  items: cartItems.map(item => ({
-                    name: item.name,
-                    price: item.price,
-                    quantity: item.quantity,
-                    weightValue: item.weightValue || item.weight,
-                    weightUnit: item.weightUnit || ''
-                  })),
-                  subtotal: subtotal,
-                  shippingCost: shippingCost,
-                  discountAmount: discountAmount,
-                  total: total
-                })
+              await apiClient.post('/send-confirmation', {
+                email: user.email,
+                orderId: savedOrder?.id || savedOrder?.orderId || 'N/A',
+                items: cartItems.map(item => ({
+                  name: item.name,
+                  price: item.price,
+                  quantity: item.quantity,
+                  weightValue: item.weightValue || item.weight,
+                  weightUnit: item.weightUnit || ''
+                })),
+                subtotal: subtotal,
+                shippingCost: shippingCost,
+                discountAmount: discountAmount,
+                total: total
               });
               console.log('Order confirmation email request sent (Online)');
             } catch (emailErr) {
