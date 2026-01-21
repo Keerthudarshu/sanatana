@@ -17,7 +17,7 @@ export default function ForgotPassword() {
   const [error, setError] = useState('');
   const [method, setMethod] = useState('reset'); // 'reset' or 'credentials'
 
-  const [method, setMethod] = useState('reset'); // 'reset' or 'credentials'
+
 
   // Step 1: Request password reset
   const handleForgotPassword = async (e) => {
