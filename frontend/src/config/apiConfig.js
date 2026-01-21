@@ -8,7 +8,7 @@
 const API_BASE =
   import.meta.env.VITE_API_URL ||
   import.meta.env.REACT_APP_API_URL ||
-  'http://56.228.81.193:8080/';
+  'http://56.228.81.193:8080';
 
 export const API_CONFIG = {
   BASE_URL: API_BASE,
