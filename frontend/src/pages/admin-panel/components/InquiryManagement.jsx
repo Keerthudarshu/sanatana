@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, User, Calendar, MessageSquare, Search, Filter, Trash2 } from 'lucide-react';
 import Icon from '../../../components/AppIcon';
+import { API_CONFIG } from '../../../config/apiConfig';
 
 const InquiryManagement = () => {
     const [inquiries, setInquiries] = useState([]);
@@ -14,7 +15,7 @@ const InquiryManagement = () => {
 
     const fetchInquiries = async () => {
         try {
-            const response = await fetch('http://localhost:8080/api/contact/all');
+            const response = await fetch('${API_CONFIG.BASE_URL}/api/contact/all');
             if (response.ok) {
                 const data = await response.json();
                 // Sort by date descending

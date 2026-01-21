@@ -17,9 +17,8 @@ import com.eduprajna.service.ProductService;
 
 @RestController
 @RequestMapping("/api/products")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class PublicProductController {
-    
+
     @Autowired
     private ProductService productService;
 
@@ -34,8 +33,7 @@ public class PublicProductController {
             @RequestParam(required = false) String sort,
             @RequestParam(required = false) Boolean featured,
             @RequestParam(required = false) Double minPrice,
-            @RequestParam(required = false) Double maxPrice
-    ) {
+            @RequestParam(required = false) Double maxPrice) {
         // Get all active products
         List<Product> products = productService.getAll().stream()
                 .filter(p -> p.getIsActive() != null && p.getIsActive()) // Only active products
@@ -46,24 +44,28 @@ public class PublicProductController {
             products = products.stream()
                     .filter(p -> {
                         String productCategory = p.getCategory();
-                        if (productCategory == null) return false;
-                        
+                        if (productCategory == null)
+                            return false;
+
                         // Case-insensitive matching with multiple strategies
                         String categoryLower = category.toLowerCase().trim();
                         String productCategoryLower = productCategory.toLowerCase().trim();
-                        
+
                         // Direct match
-                        if (productCategoryLower.equals(categoryLower)) return true;
-                        
+                        if (productCategoryLower.equals(categoryLower))
+                            return true;
+
                         // Handle URL-encoded spaces and hyphens
-                        String normalizedCategory = categoryLower.replace("%20", " ").replace("-", " ").replace("_", " ");
+                        String normalizedCategory = categoryLower.replace("%20", " ").replace("-", " ").replace("_",
+                                " ");
                         String normalizedProductCategory = productCategoryLower.replace("-", " ").replace("_", " ");
-                        
-                        if (normalizedProductCategory.equals(normalizedCategory)) return true;
-                        
+
+                        if (normalizedProductCategory.equals(normalizedCategory))
+                            return true;
+
                         // Partial matching
-                        return normalizedProductCategory.contains(normalizedCategory) || 
-                               normalizedCategory.contains(normalizedProductCategory);
+                        return normalizedProductCategory.contains(normalizedCategory) ||
+                                normalizedCategory.contains(normalizedProductCategory);
                     })
                     .collect(Collectors.toList());
         }
@@ -76,10 +78,10 @@ public class PublicProductController {
                         String name = p.getName() != null ? p.getName().toLowerCase() : "";
                         String description = p.getDescription() != null ? p.getDescription().toLowerCase() : "";
                         String productCategory = p.getCategory() != null ? p.getCategory().toLowerCase() : "";
-                        
-                        return name.contains(searchLower) || 
-                               description.contains(searchLower) || 
-                               productCategory.contains(searchLower);
+
+                        return name.contains(searchLower) ||
+                                description.contains(searchLower) ||
+                                productCategory.contains(searchLower);
                     })
                     .collect(Collectors.toList());
         }
@@ -150,16 +152,16 @@ public class PublicProductController {
     @GetMapping("/{id}")
     public ResponseEntity<Product> getProductById(@PathVariable Long id) {
         Product product = productService.getById(id);
-        
+
         // Check if product exists and is active
         if (product == null) {
             return ResponseEntity.notFound().build();
         }
-        
+
         if (product.getIsActive() == null || !product.getIsActive()) {
             return ResponseEntity.notFound().build(); // Don't show inactive products to public
         }
-        
+
         return ResponseEntity.ok(product);
     }
 
@@ -172,11 +174,13 @@ public class PublicProductController {
                 .filter(p -> p.getIsActive() != null && p.getIsActive()) // Only active products
                 .filter(p -> {
                     String productCategory = p.getCategory();
-                    if (productCategory == null) return false;
-                    
+                    if (productCategory == null)
+                        return false;
+
                     // Case-insensitive matching
                     return productCategory.toLowerCase().equals(categoryName.toLowerCase()) ||
-                           productCategory.toLowerCase().replace("-", " ").equals(categoryName.toLowerCase().replace("-", " "));
+                            productCategory.toLowerCase().replace("-", " ")
+                                    .equals(categoryName.toLowerCase().replace("-", " "));
                 })
                 .collect(Collectors.toList());
 
@@ -199,10 +203,10 @@ public class PublicProductController {
                     String name = p.getName() != null ? p.getName().toLowerCase() : "";
                     String description = p.getDescription() != null ? p.getDescription().toLowerCase() : "";
                     String category = p.getCategory() != null ? p.getCategory().toLowerCase() : "";
-                    
-                    return name.contains(searchTerm) || 
-                           description.contains(searchTerm) || 
-                           category.contains(searchTerm);
+
+                    return name.contains(searchTerm) ||
+                            description.contains(searchTerm) ||
+                            category.contains(searchTerm);
                 })
                 .collect(Collectors.toList());
 

@@ -29,7 +29,6 @@ import com.eduprajna.service.StorageService;
 
 @RestController
 @RequestMapping("/api/admin/products")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 
 public class ProductController {
     @Autowired
@@ -48,7 +47,8 @@ public class ProductController {
     @GetMapping("/variants/{id}")
     public ResponseEntity<ProductVariant> getVariantById(@PathVariable Long id) {
         ProductVariant v = productService.getVariantById(id);
-        if (v == null) return ResponseEntity.notFound().build();
+        if (v == null)
+            return ResponseEntity.notFound().build();
         return ResponseEntity.ok(v);
     }
 
@@ -66,11 +66,10 @@ public class ProductController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(consumes = {"multipart/form-data"})
+    @PostMapping(consumes = { "multipart/form-data" })
     public ResponseEntity<Product> create(
             @RequestPart("product") Product p,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile
-    ) throws IOException {
+            @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException {
         if (imageFile != null && !imageFile.isEmpty()) {
             String relativePath = storageService.store(imageFile);
             p.setImageUrl(relativePath);
@@ -79,21 +78,19 @@ public class ProductController {
         return ResponseEntity.ok(saved);
     }
 
-    @PutMapping(value = "/{id}", consumes = {"application/json"})
+    @PutMapping(value = "/{id}", consumes = { "application/json" })
     public ResponseEntity<Product> updateJson(
             @PathVariable Long id,
-            @RequestBody Product p
-    ) {
+            @RequestBody Product p) {
         p.setId(id);
         return ResponseEntity.ok(productService.save(p));
     }
 
-    @PutMapping(value = "/{id}", consumes = {"multipart/form-data"})
+    @PutMapping(value = "/{id}", consumes = { "multipart/form-data" })
     public ResponseEntity<Product> updateMultipart(
             @PathVariable Long id,
             @RequestPart("product") Product p,
-            @RequestParam(value = "image", required = false) MultipartFile imageFile
-    ) throws IOException {
+            @RequestParam(value = "image", required = false) MultipartFile imageFile) throws IOException {
         p.setId(id);
         if (imageFile != null && !imageFile.isEmpty()) {
             String relativePath = storageService.store(imageFile);
@@ -145,12 +142,12 @@ public class ProductController {
                 .collect(Collectors.toList());
         return ResponseEntity.ok(urls);
     }
+
     // Upload or update product image by id
-    @PostMapping(value = "/{id}/image", consumes = {"multipart/form-data"})
+    @PostMapping(value = "/{id}/image", consumes = { "multipart/form-data" })
     public ResponseEntity<?> uploadProductImage(
             @PathVariable Long id,
-            @RequestParam("image") MultipartFile imageFile
-    ) {
+            @RequestParam("image") MultipartFile imageFile) {
         try {
             Product product = productService.getById(id);
             if (product == null) {

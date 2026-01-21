@@ -1,6 +1,7 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react'
 // import dataService from '../services/dataService'
+import { API_CONFIG } from '../config/apiConfig';
 
 const AuthContext = createContext({})
 
@@ -31,7 +32,7 @@ export const AuthProvider = ({ children, setError }) => {
   const signIn = async (email, password) => {
     try {
       setLoading(true);
-      const res = await fetch('http://localhost:8080/api/auth/login', {
+      const res = await fetch(`${API_CONFIG.BASE_URL}/api/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -72,13 +73,13 @@ export const AuthProvider = ({ children, setError }) => {
   const signUp = async (userData) => {
     try {
       setLoading(true);
-      
+
       // Check if user already exists
       const existingUser = dataService.getUserByEmail(userData.email);
       if (existingUser) {
         return { user: null, error: { message: 'User already exists with this email' } };
       }
-      
+
       // Create new user
       const newUser = dataService.addUser({
         name: userData.name,
@@ -93,17 +94,17 @@ export const AuthProvider = ({ children, setError }) => {
         totalSaved: 0,
         isActive: true
       });
-      
+
       if (newUser) {
         setUser(newUser);
         setUserProfile(newUser);
-        
+
         // Save session
         localStorage.setItem('neenu_auth_session', JSON.stringify({
           userId: newUser.id,
           timestamp: Date.now()
         }));
-        
+
         return { user: newUser, error: null };
       } else {
         return { user: null, error: { message: 'Failed to create user' } };
@@ -118,11 +119,11 @@ export const AuthProvider = ({ children, setError }) => {
   const updateProfile = async (updates) => {
     try {
       if (!user) return { error: { message: 'No user logged in' } };
-      
+
       const updatedUser = { ...user, ...updates };
       setUser(updatedUser);
       setUserProfile(updatedUser);
-      
+
       // In a real app, you'd update the database here
       return { error: null };
     } catch (error) {

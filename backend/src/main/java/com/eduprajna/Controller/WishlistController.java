@@ -24,13 +24,12 @@ import com.eduprajna.service.WishlistService;
 
 @RestController
 @RequestMapping("/api/wishlist")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class WishlistController {
     private static final Logger logger = LoggerFactory.getLogger(WishlistController.class);
 
     @Autowired
     private WishlistService wishlistService;
-    
+
     @Autowired
     private UserService userService;
 
@@ -92,7 +91,8 @@ public class WishlistController {
     }
 
     @DeleteMapping("/{productId}")
-    public ResponseEntity<?> removeFromWishlist(@RequestParam("email") String email, @PathVariable("productId") Long productId) {
+    public ResponseEntity<?> removeFromWishlist(@RequestParam("email") String email,
+            @PathVariable("productId") Long productId) {
         try {
             logger.debug("Removing from wishlist for user: {} product: {}", email, productId);
             User user = requireUser(email);

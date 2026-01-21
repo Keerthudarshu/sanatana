@@ -1,8 +1,9 @@
 import axios from 'axios';
+import { API_CONFIG } from '../config/apiConfig';
 
 // Base URL from environment variables (Vite uses import.meta.env)
 // Default to include `/api` for existing calls that use paths like `/products`
-const baseURL = import.meta.env?.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const baseURL = `${API_CONFIG.BASE_URL}/api`;
 
 export const apiClient = axios.create({
   baseURL,
@@ -19,12 +20,12 @@ apiClient.interceptors.request.use(
       // Check for admin user token first (for admin panel operations)
       const storedAdminUser = localStorage.getItem('adminUser');
       let token = null;
-      
+
       if (storedAdminUser) {
         const adminUser = JSON.parse(storedAdminUser);
         token = adminUser?.token || adminUser?.accessToken;
       }
-      
+
       // Fall back to regular user token if admin token not found
       if (!token) {
         const storedUser = localStorage.getItem('user');
@@ -33,7 +34,7 @@ apiClient.interceptors.request.use(
           token = user?.token || user?.accessToken;
         }
       }
-      
+
       if (token) {
         config.headers = config.headers || {};
         config.headers.Authorization = `Bearer ${token}`;
@@ -55,7 +56,7 @@ apiClient.interceptors.response.use(
       // Unauthorized: clear session and optionally redirect to login
       try {
         localStorage.removeItem('user');
-      } catch {}
+      } catch { }
       // Lightweight redirect guard to avoid breaking SSR/testing
       if (typeof window !== 'undefined') {
         const current = window.location.pathname + window.location.search;

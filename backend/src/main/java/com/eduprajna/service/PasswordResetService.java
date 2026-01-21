@@ -19,22 +19,22 @@ import java.util.UUID;
  */
 @Service
 public class PasswordResetService {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(PasswordResetService.class);
     private static final long TOKEN_EXPIRY_HOURS = 24; // Token valid for 24 hours
-    
+
     @Autowired
     private PasswordResetTokenRepository tokenRepository;
-    
+
     @Autowired
     private UserRepository userRepository;
-    
+
     @Autowired
     private EmailService emailService;
-    
+
     @Autowired
     private PasswordEncoder passwordEncoder;
-    
+
     /**
      * Generate password reset token for user email
      * Conditions:
@@ -52,31 +52,31 @@ public class PasswordResetService {
             logger.warn("Password reset requested for non-existent email: {}", email);
             return null;
         }
-        
+
         User user = userOpt.get();
-        
+
         // Invalidate any existing tokens for this email
         invalidateExistingTokens(email);
-        
+
         // Generate unique token
         String token = UUID.randomUUID().toString();
-        
+
         // Create new token with 24-hour expiry
         LocalDateTime now = LocalDateTime.now();
         LocalDateTime expiryTime = now.plusHours(TOKEN_EXPIRY_HOURS);
-        
+
         PasswordResetToken resetToken = new PasswordResetToken(token, email, now, expiryTime);
         tokenRepository.save(resetToken);
-        
+
         logger.info("Password reset token generated for email: {}", email);
-        
+
         // Send reset email
         String resetLink = buildResetLink(token);
         emailService.sendPasswordResetEmail(email, user.getName(), resetLink);
-        
+
         return token;
     }
-    
+
     /**
      * Validate reset token
      * Conditions:
@@ -89,14 +89,14 @@ public class PasswordResetService {
      */
     public boolean validateResetToken(String token) {
         Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token);
-        
+
         if (tokenOpt.isEmpty()) {
             logger.warn("Invalid reset token provided");
             return false;
         }
-        
+
         PasswordResetToken resetToken = tokenOpt.get();
-        
+
         // Check if token is valid (not used and not expired)
         if (!resetToken.isValid()) {
             if (resetToken.getIsUsed()) {
@@ -106,10 +106,10 @@ public class PasswordResetService {
             }
             return false;
         }
-        
+
         return true;
     }
-    
+
     /**
      * Reset password using valid token
      * Conditions:
@@ -117,7 +117,7 @@ public class PasswordResetService {
      * 2. New password must not be empty
      * 3. Mark token as used after successful reset
      * 
-     * @param token Reset token
+     * @param token       Reset token
      * @param newPassword New password
      * @return true if password reset successful, false otherwise
      */
@@ -126,39 +126,39 @@ public class PasswordResetService {
         if (!validateResetToken(token)) {
             return false;
         }
-        
+
         if (newPassword == null || newPassword.trim().isEmpty()) {
             logger.warn("Cannot reset password with empty password");
             return false;
         }
-        
+
         Optional<PasswordResetToken> tokenOpt = tokenRepository.findByToken(token);
         if (tokenOpt.isEmpty()) {
             return false;
         }
-        
+
         PasswordResetToken resetToken = tokenOpt.get();
         String email = resetToken.getEmail();
-        
+
         // Find user and update password
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isEmpty()) {
             logger.error("User not found for email: {}", email);
             return false;
         }
-        
+
         User user = userOpt.get();
         user.setPasswordHash(passwordEncoder.encode(newPassword));
         userRepository.save(user);
-        
+
         // Mark token as used
         resetToken.setIsUsed(true);
         tokenRepository.save(resetToken);
-        
+
         logger.info("Password successfully reset for user: {}", email);
         return true;
     }
-    
+
     /**
      * Send forgotten credentials to email
      * Conditions:
@@ -175,19 +175,19 @@ public class PasswordResetService {
             logger.warn("Forgotten credentials requested for non-existent email: {}", email);
             return false;
         }
-        
+
         User user = userOpt.get();
-        
+
         // Generate temporary password
         String temporaryPassword = generateTemporaryPassword();
-        
+
         // Update user with temporary password
         user.setPasswordHash(passwordEncoder.encode(temporaryPassword));
         userRepository.save(user);
-        
+
         // Send credentials email
         boolean emailSent = emailService.sendCredentialsEmail(email, user.getName(), temporaryPassword);
-        
+
         if (emailSent) {
             logger.info("Forgotten credentials sent to email: {}", email);
             return true;
@@ -196,7 +196,7 @@ public class PasswordResetService {
             return false;
         }
     }
-    
+
     /**
      * Invalidate all existing tokens for an email
      */
@@ -210,24 +210,25 @@ public class PasswordResetService {
             });
         });
     }
-    
+
     /**
      * Build password reset link
      */
     private String buildResetLink(String token) {
         // Adjust URL to your frontend domain
-        return "http://localhost:3000/reset-password?token=" + token;
+        return "http://56.228.81.193:8000/reset-password?token=" + token;
     }
-    
+
     /**
-     * Generate temporary password (8 characters: mix of uppercase, lowercase, numbers)
+     * Generate temporary password (8 characters: mix of uppercase, lowercase,
+     * numbers)
      */
     private String generateTemporaryPassword() {
         String uppercase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowercase = "abcdefghijklmnopqrstuvwxyz";
         String digits = "0123456789";
         String all = uppercase + lowercase + digits;
-        
+
         StringBuilder password = new StringBuilder();
         for (int i = 0; i < 8; i++) {
             password.append(all.charAt((int) (Math.random() * all.length())));

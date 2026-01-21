@@ -17,7 +17,6 @@ import com.eduprajna.service.StorageService;
 
 @RestController
 @RequestMapping("/uploads")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class UploadController {
 
     @Autowired

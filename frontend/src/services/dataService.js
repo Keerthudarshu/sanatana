@@ -2,6 +2,7 @@
 import databaseData from '../data/database.json';
 import productApi from './productApi';
 import apiClient from './api';
+import { API_CONFIG } from '../config/apiConfig';
 
 // Simulate API delay for development
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
@@ -99,7 +100,8 @@ const dataService = {
 
   async getAllUsers() {
     try {
-      const res = await fetch('http://localhost:8080/api/admin/users');
+      const res = await fetch(`${API_CONFIG.BASE_URL}/api/admin/users`)
+        ;
       if (!res.ok) throw new Error('Failed to fetch users');
       return await res.json();
     } catch (error) {
@@ -148,8 +150,8 @@ const dataService = {
   // Authentication methods
   authenticate(emailOrUsername, password) {
     console.log('Authenticating user:', emailOrUsername);
-    const user = users.find(u => 
-      (u.email === emailOrUsername || u.username === emailOrUsername) && 
+    const user = users.find(u =>
+      (u.email === emailOrUsername || u.username === emailOrUsername) &&
       u.password === password
     );
     return user || null;
@@ -225,7 +227,7 @@ const dataService = {
     };
     orders.push(newOrder);
     saveOrdersToStorage();
-    
+
     // Update user's order history and stats
     if (orderData.userId) {
       const user = users.find(u => u.id === parseInt(orderData.userId));
@@ -235,7 +237,7 @@ const dataService = {
         loadUsersFromStorage();
       }
     }
-    
+
     console.log('Order added to database:', newOrder);
     return newOrder;
   },
@@ -256,18 +258,18 @@ const dataService = {
       console.log('Fetching products from backend API...');
       const products = await productApi.getAll(filters);
       console.log('Successfully loaded products from API:', products.length);
-      
+
       return {
         data: Array.isArray(products) ? products : [],
         total: Array.isArray(products) ? products.length : 0
       };
     } catch (error) {
       console.error('Error fetching products from API, using fallback:', error);
-      
+
       // Fallback to database.json data only if API fails
       const fallbackProducts = databaseData.products || [];
       console.log('Using fallback products:', fallbackProducts.length);
-      
+
       return {
         data: fallbackProducts,
         total: fallbackProducts.length
@@ -281,17 +283,17 @@ const dataService = {
       console.log('Fetching product by ID from backend API:', id);
       const product = await productApi.getById(id);
       console.log('Successfully loaded product from API:', product);
-      
+
       return { data: product };
     } catch (error) {
       console.error('Error fetching product from API, using fallback:', error);
-      
+
       // Fallback to database.json data only if API fails
       const fallbackProduct = databaseData.products?.find(p => p.id === parseInt(id));
       if (!fallbackProduct) {
         throw new Error('Product not found');
       }
-      
+
       return { data: fallbackProduct };
     }
   },
@@ -303,11 +305,11 @@ const dataService = {
       const res = await apiClient.get('/categories');
       const categories = res.data;
       console.log('Successfully loaded categories from API:', categories.length);
-      
+
       return { data: Array.isArray(categories) ? categories : [] };
     } catch (error) {
       console.error('Error fetching categories from API:', error);
-      
+
       // Return empty array if API fails - no hardcoded fallback
       return { data: [] };
     }
@@ -320,7 +322,7 @@ const dataService = {
       const products = await productApi.getAll({ featured: true, limit });
       const featured = Array.isArray(products) ? products.slice(0, limit) : [];
       console.log('Successfully loaded featured products from API:', featured.length);
-      
+
       return { data: featured };
     } catch (error) {
       console.error('Error fetching featured products from API:', error);
@@ -335,7 +337,7 @@ const dataService = {
       const products = await productApi.getAll({ bestseller: true, limit });
       const bestsellers = Array.isArray(products) ? products.slice(0, limit) : [];
       console.log('Successfully loaded bestsellers from API:', bestsellers.length);
-      
+
       return { data: bestsellers };
     } catch (error) {
       console.error('Error fetching bestsellers from API:', error);
@@ -347,17 +349,17 @@ const dataService = {
   async getRelatedProducts(productId, limit = 4) {
     try {
       console.log('Fetching related products from backend API for product:', productId);
-      
+
       // First get the product to find its category
       const product = await productApi.getById(productId);
       if (!product) return { data: [] };
-      
+
       // Then get products from the same category
       const products = await productApi.getAll({ category: product.category, limit: limit + 1 });
-      const related = Array.isArray(products) 
+      const related = Array.isArray(products)
         ? products.filter(p => p.id !== parseInt(productId)).slice(0, limit)
         : [];
-      
+
       console.log('Successfully loaded related products from API:', related.length);
       return { data: related };
     } catch (error) {

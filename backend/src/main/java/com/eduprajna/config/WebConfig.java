@@ -11,15 +11,16 @@ public class WebConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-        // CRITICAL: Do NOT use /** handler - it intercepts ALL requests including API calls
+        // CRITICAL: Do NOT use /** handler - it intercepts ALL requests including API
+        // calls
         // This causes infinite forwarding loops in Spring dispatcher
-        
+
         // Serve uploaded files from dedicated /uploads/** path ONLY
         String uploadDir = System.getProperty("upload.dir", "./uploads");
         registry.addResourceHandler("/uploads/**")
                 .addResourceLocations("file:" + uploadDir + "/")
                 .setCachePeriod(86400); // 1 day cache for uploads
-        
+
         // Serve static frontend files ONLY from /static/** path
         // This prevents intercepting API requests like /api/admin/products/{id}
         registry.addResourceHandler("/static/**")
@@ -31,11 +32,7 @@ public class WebConfig implements WebMvcConfigurer {
     public void addCorsMappings(@NonNull CorsRegistry registry) {
         registry.addMapping("/api/**")
                 .allowedOrigins(
-                    "http://localhost:3000", 
-                    "http://127.0.0.1:3000",
-                    "https://*.onrender.com",
-                    "https://your-app-name.onrender.com"
-                )
+                        "http://56.228.81.193:8000")
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
                 .allowedHeaders("*")
                 .allowCredentials(true)

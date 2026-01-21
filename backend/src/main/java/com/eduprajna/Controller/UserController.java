@@ -18,7 +18,6 @@ import com.eduprajna.repository.WishlistItemRepository;
 
 @RestController
 @RequestMapping("/api/admin/users")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class UserController {
 
     @Autowired
@@ -44,19 +43,18 @@ public class UserController {
     private UserSummaryDTO convertToUserSummaryDTO(User user) {
         long orderCount = orderRepository.findByUserOrderByCreatedAtDesc(user).size();
         long wishlistCount = wishlistItemRepository.countByUser(user);
-        
+
         return new UserSummaryDTO(
-            user.getId(),
-            user.getName(),
-            user.getEmail(),
-            user.getPhone(),
-            user.getRole(),
-            user.getCreatedAt(),
-            user.getMemberSince(),
-            user.getIsActive(),
-            orderCount,
-            wishlistCount,
-            user.getLoyaltyPoints()
-        );
+                user.getId(),
+                user.getName(),
+                user.getEmail(),
+                user.getPhone(),
+                user.getRole(),
+                user.getCreatedAt(),
+                user.getMemberSince(),
+                user.getIsActive(),
+                orderCount,
+                wishlistCount,
+                user.getLoyaltyPoints());
     }
 }

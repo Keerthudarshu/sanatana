@@ -8,9 +8,9 @@
  * - Returns proper absolute URLs with API origin
  * - Idempotent: calling multiple times produces same result
  */
+import { API_CONFIG } from '../config/apiConfig';
 
-const API_ORIGIN = 'http://localhost:8080/api';
-
+const API_ORIGIN = `${API_CONFIG.BASE_URL}/api`;
 export function resolveImageUrl(input) {
   // Handle null, undefined, or empty strings
   if (!input || typeof input !== 'string' || input.trim() === '') {
@@ -27,20 +27,20 @@ export function resolveImageUrl(input) {
   // ============================================================
   // CRITICAL: Clean up repeated path segments that cause crashes
   // ============================================================
-  
+
   // Clean up repeated /api/admin/products patterns
   // Examples: /api/admin/products/api/admin/products/image.jpg
   //           /api/admin/products/api/admin/products/api/admin/products/image.jpg
   url = url.replace(/\/api\/admin\/products(\/api\/admin\/products)+/g, '/api/admin/products');
-  
+
   // Clean up repeated /api/uploads patterns
   // Examples: /api/uploads/api/uploads/image.jpg
   url = url.replace(/\/api\/uploads(\/api\/uploads)+/g, '/api/uploads');
-  
+
   // Clean up repeated /uploads patterns
   // Examples: /uploads/uploads/image.jpg
   url = url.replace(/\/uploads(\/uploads)+/g, '/uploads');
-  
+
   // Clean up repeated /admin/products/images patterns
   url = url.replace(/\/admin\/products\/images(\/admin\/products\/images)+/g, '/admin/products/images');
 
@@ -64,15 +64,16 @@ export function resolveImageUrl(input) {
   // ============================================================
   // Build final URL with API origin
   // ============================================================
-  
+
   // Already has /api prefix but not full origin
   if (url.startsWith('/api/')) {
-    return `http://localhost:8080${url}`;
+    return `${API_CONFIG.BASE_URL}${url}`;
   }
 
   // /uploads/ paths - map to http://localhost:8080
   if (url.startsWith('/uploads/')) {
-    return `http://localhost:8080${url}`;
+    return `${API_CONFIG.BASE_URL}${url}`;
+
   }
 
   // Already has /admin or other prefixes
@@ -82,7 +83,8 @@ export function resolveImageUrl(input) {
 
   // Starts with / but not recognized
   if (url.startsWith('/')) {
-    return `http://localhost:8080${url}`;
+    return `${API_CONFIG.BASE_URL}${url}`;
+
   }
 
   // Relative path - add to /api prefix

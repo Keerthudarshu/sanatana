@@ -11,7 +11,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/addresses")
-@CrossOrigin(origins = {"http://localhost:3000", "http://127.0.0.1:3000"}, allowCredentials = "true")
 public class AddressController {
     private final AddressService addressService;
     private final UserService userService;
@@ -42,46 +41,41 @@ public class AddressController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Object> update(@RequestParam("email") String email, @PathVariable Long id, @Valid @RequestBody Address body) {
+    public ResponseEntity<Object> update(@RequestParam("email") String email, @PathVariable Long id,
+            @Valid @RequestBody Address body) {
         return userService.findByEmail(email)
-            .<ResponseEntity<Object>>map(user ->
-                addressService.findById(id)
-                    .<ResponseEntity<Object>>map(existing -> {
-                        if (existing.getUser() == null || !existing.getUser().getId().equals(user.getId())) {
-                            return ResponseEntity.status(403).body(Map.of("message", "Forbidden"));
-                        }
-                        existing.setName(body.getName());
-                        existing.setPhone(body.getPhone());
-                        existing.setStreet(body.getStreet());
-                        existing.setCity(body.getCity());
-                        existing.setState(body.getState());
-                        existing.setPincode(body.getPincode());
-                        existing.setLandmark(body.getLandmark());
-                        existing.setAddressType(body.getAddressType());
-                        existing.setDefault(body.isDefault());
-                        return ResponseEntity.ok(addressService.save(existing));
-                    })
-                    .orElse(ResponseEntity.status(404).body(Map.of("message", "Address not found")))
-            )
-            .orElse(ResponseEntity.status(404).body(Map.of("message", "User not found")));
+                .<ResponseEntity<Object>>map(user -> addressService.findById(id)
+                        .<ResponseEntity<Object>>map(existing -> {
+                            if (existing.getUser() == null || !existing.getUser().getId().equals(user.getId())) {
+                                return ResponseEntity.status(403).body(Map.of("message", "Forbidden"));
+                            }
+                            existing.setName(body.getName());
+                            existing.setPhone(body.getPhone());
+                            existing.setStreet(body.getStreet());
+                            existing.setCity(body.getCity());
+                            existing.setState(body.getState());
+                            existing.setPincode(body.getPincode());
+                            existing.setLandmark(body.getLandmark());
+                            existing.setAddressType(body.getAddressType());
+                            existing.setDefault(body.isDefault());
+                            return ResponseEntity.ok(addressService.save(existing));
+                        })
+                        .orElse(ResponseEntity.status(404).body(Map.of("message", "Address not found"))))
+                .orElse(ResponseEntity.status(404).body(Map.of("message", "User not found")));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> delete(@RequestParam("email") String email, @PathVariable Long id) {
         return userService.findByEmail(email)
-            .<ResponseEntity<Object>>map(user ->
-                addressService.findById(id)
-                    .<ResponseEntity<Object>>map(existing -> {
-                        if (existing.getUser() == null || !existing.getUser().getId().equals(user.getId())) {
-                            return ResponseEntity.status(403).body(Map.of("message", "Forbidden"));
-                        }
-                        addressService.deleteById(id);
-                        return ResponseEntity.status(204).body(null);
-                    })
-                    .orElse(ResponseEntity.status(404).body(Map.of("message", "Address not found")))
-            )
-            .orElse(ResponseEntity.status(404).body(Map.of("message", "User not found")));
+                .<ResponseEntity<Object>>map(user -> addressService.findById(id)
+                        .<ResponseEntity<Object>>map(existing -> {
+                            if (existing.getUser() == null || !existing.getUser().getId().equals(user.getId())) {
+                                return ResponseEntity.status(403).body(Map.of("message", "Forbidden"));
+                            }
+                            addressService.deleteById(id);
+                            return ResponseEntity.status(204).body(null);
+                        })
+                        .orElse(ResponseEntity.status(404).body(Map.of("message", "Address not found"))))
+                .orElse(ResponseEntity.status(404).body(Map.of("message", "User not found")));
     }
 }
-
-

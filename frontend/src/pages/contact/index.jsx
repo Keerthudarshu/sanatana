@@ -7,6 +7,7 @@ import Breadcrumb from '../../components/ui/Breadcrumb';
 import Button from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
 import Icon from '../../components/AppIcon';
+import { API_CONFIG } from '../../config/apiConfig';
 
 const ContactPage = () => {
   const [formData, setFormData] = useState({
@@ -80,7 +81,7 @@ const ContactPage = () => {
 
     try {
       // 1. Save to database via Java backend
-      const dbResponse = await fetch('http://localhost:8080/api/contact/submit', {
+      const dbResponse = await fetch('${API_CONFIG.BASE_URL}/api/contact/submit', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
@@ -90,7 +91,7 @@ const ContactPage = () => {
 
       // 2. Send thank you email via Node.js email service
       try {
-        await fetch('http://localhost:5001/api/send-contact-thankyou', {
+        await fetch('${API_CONFIG.BASE_URL}/api/send-contact-thankyou', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
