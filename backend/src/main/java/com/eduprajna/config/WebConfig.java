@@ -2,7 +2,6 @@ package com.eduprajna.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.NonNull;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
@@ -11,32 +10,18 @@ public class WebConfig implements WebMvcConfigurer {
 
         @Override
         public void addResourceHandlers(@NonNull ResourceHandlerRegistry registry) {
-                // CRITICAL: Do NOT use /** handler - it intercepts ALL requests including API
-                // calls
-                // This causes infinite forwarding loops in Spring dispatcher
 
-                // Serve uploaded files from dedicated /uploads/** path ONLY
+                // Serve uploaded files (images, docs, etc.)
                 String uploadDir = System.getProperty("upload.dir", "./uploads");
                 registry.addResourceHandler("/uploads/**")
                                 .addResourceLocations("file:" + uploadDir + "/")
-                                .setCachePeriod(86400); // 1 day cache for uploads
+                                .setCachePeriod(86400); // 1 day cache
 
-                // Serve static frontend files ONLY from /static/** path
-                // This prevents intercepting API requests like /api/admin/products/{id}
+                // Serve static frontend assets if needed
                 registry.addResourceHandler("/static/**")
-                                .addResourceLocations("classpath:/static/", "file:./static/")
-                                .setCachePeriod(31556926); // 1 year cache for static assets
-        }
-
-        @Override
-        public void addCorsMappings(@NonNull CorsRegistry registry) {
-                registry.addMapping("/api/**")
-                                .allowedOrigins(
-                                                "http://56.228.81.193",
-                                                "http://56.228.81.193:8000")
-                                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH")
-                                .allowedHeaders("*")
-                                .allowCredentials(true)
-                                .maxAge(3600);
+                                .addResourceLocations(
+                                                "classpath:/static/",
+                                                "file:./static/")
+                                .setCachePeriod(31556926); // 1 year cache
         }
 }

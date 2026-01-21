@@ -11,6 +11,7 @@ const API_BASE =
   'http://56.228.81.193:8080';
 
 export const API_CONFIG = {
-  BASE_URL: API_BASE,
+  BASE_URL: API_BASE.replace(/\/$/, ''),
 };
+
 

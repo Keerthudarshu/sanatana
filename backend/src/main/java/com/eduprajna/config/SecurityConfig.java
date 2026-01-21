@@ -1,8 +1,13 @@
 package com.eduprajna.config;
 
+import java.util.List;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -13,78 +18,88 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-/**
- * Security configuration for the application
- * Opens public APIs for password reset and keeps other endpoints secured
- */
+import com.eduprajna.service.CustomUserDetailsService;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final com.eduprajna.service.CustomUserDetailsService userDetailsService;
+    private final CustomUserDetailsService userDetailsService;
 
-    public SecurityConfig(com.eduprajna.service.CustomUserDetailsService userDetailsService) {
+    public SecurityConfig(CustomUserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
 
-    /**
-     * Password encoder bean using BCrypt
-     * 
-     * @return BCryptPasswordEncoder instance
-     */
+    // -------------------- Password Encoder --------------------
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    // -------------------- Authentication Manager --------------------
     @Bean
-    public org.springframework.security.authentication.AuthenticationManager authenticationManager(
-            org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration authenticationConfiguration)
-            throws Exception {
-        return authenticationConfiguration.getAuthenticationManager();
+    public AuthenticationManager authenticationManager(
+            AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
     }
 
+    // -------------------- Authentication Provider --------------------
     @Bean
-    public org.springframework.security.authentication.dao.DaoAuthenticationProvider authenticationProvider() {
-        org.springframework.security.authentication.dao.DaoAuthenticationProvider authProvider = new org.springframework.security.authentication.dao.DaoAuthenticationProvider();
-        authProvider.setUserDetailsService(userDetailsService);
-        authProvider.setPasswordEncoder(passwordEncoder());
-        return authProvider;
+    public DaoAuthenticationProvider authenticationProvider() {
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setUserDetailsService(userDetailsService);
+        provider.setPasswordEncoder(passwordEncoder());
+        return provider;
     }
 
-    /**
-     * Security filter chain to allow public password-reset endpoints and basic auth
-     * for the rest.
-     */
+    // -------------------- SECURITY FILTER CHAIN --------------------
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
+                // Disable defaults we don't need
                 .csrf(AbstractHttpConfigurer::disable)
-                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Explicitly allow auth endpoints
-                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .anyRequest().permitAll() // Keep existing open policy for now, can be tightened later
-                )
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .formLogin(AbstractHttpConfigurer::disable)
+
+                // Enable CORS (THIS IS CRITICAL)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+
+                // Authorization rules
+                .authorizeHttpRequests(auth -> auth
+                        // ✅ VERY IMPORTANT: allow preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        // Auth endpoints
+                        .requestMatchers("/api/auth/**").permitAll()
+
+                        // Other APIs (you can tighten later)
+                        .anyRequest().permitAll())
+
                 .authenticationProvider(authenticationProvider());
 
         return http.build();
     }
 
-    /**
-     * CORS configuration to allow the frontend dev server.
-     */
+    // -------------------- CORS CONFIGURATION (MAIN FIX) --------------------
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
+
         CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedOriginPattern("http://56.228.81.193*");
-        config.addAllowedMethod("*");
-        config.addAllowedHeader("*");
+
+        // EXACT frontend origin
+        config.setAllowedOrigins(List.of(
+                "http://56.228.81.193"));
+
+        config.setAllowedMethods(List.of(
+                "GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+
+        config.setAllowedHeaders(List.of("*"));
         config.setAllowCredentials(true);
+        config.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+
         source.registerCorsConfiguration("/**", config);
         return source;
     }
