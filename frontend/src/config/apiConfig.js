@@ -10,7 +10,9 @@ const API_BASE =
   import.meta.env.REACT_APP_API_URL ||
   'http://56.228.81.193:8080';
 
+const cleanBaseUrl = (url) => url?.replace(/\/+$/, '');
+
 export const API_CONFIG = {
-  BASE_URL: API_BASE,
+  BASE_URL: cleanBaseUrl(API_BASE),
 };
 
