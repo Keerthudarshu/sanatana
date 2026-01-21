@@ -18,7 +18,7 @@ import TrustSignals from './components/TrustSignals';
 import Button from '../../components/ui/Button';
 import Icon from '../../components/AppIcon';
 import apiClient from '../../services/api';
-import apiClient from '../../services/api';
+
 
 /**
  * Multi-Step Checkout Process Component
