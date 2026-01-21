@@ -29,7 +29,8 @@ public class EmailController {
         if (sent) {
             return ResponseEntity.ok(Map.of("message", "Email sent successfully"));
         } else {
-            return ResponseEntity.internalServerError().body(Map.of("message", "Failed to send email"));
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Failed to send email. Check backend logs."));
         }
     }
 
@@ -45,7 +46,8 @@ public class EmailController {
         if (sent) {
             return ResponseEntity.ok(Map.of("message", "Subscription email sent successfully"));
         } else {
-            return ResponseEntity.internalServerError().body(Map.of("message", "Failed to send email"));
+            return ResponseEntity.internalServerError()
+                    .body(Map.of("message", "Failed to send email. Check backend logs."));
         }
     }
 }
