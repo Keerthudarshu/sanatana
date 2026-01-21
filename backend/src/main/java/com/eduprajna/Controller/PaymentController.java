@@ -115,7 +115,7 @@ public class PaymentController {
 
         } catch (Exception e) {
             logger.error("Failed to create razorpay order for {}", email, e);
-            return ResponseEntity.status(500).body("Failed to create razorpay order");
+            return ResponseEntity.status(500).body("Failed to create razorpay order: " + e.getMessage());
         }
     }
 
